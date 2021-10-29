@@ -73,11 +73,13 @@ void ACustomPlayerController::SprintEnd()
 void ACustomPlayerController::DelegateCameraFreeLookBegin()
 {
 	bIsFreelook = true;
+	CameraMovement->ResetCameraLocation();
 }
 
 void ACustomPlayerController::DelegateCameraFreeLookEnd()
 {
 	bIsFreelook = false;
+	CameraMovement->ResetCameraLocation();
 }
 
 void ACustomPlayerController::DelegateCameraPan(float value)

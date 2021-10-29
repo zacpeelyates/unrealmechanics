@@ -73,7 +73,7 @@ void ACameraPawn::AddArmLength(float DeltaArmLength)
 
 void ACameraPawn::AddArmRotation(FRotator DeltaArmRotation)
 {
-	const FRotator rotMax = FRotator(25.0f, 60.0f, 15.0f);
+	const FRotator rotMax = FRotator(25.0f, 120.0f, 15.0f);
 	FRotator rotNew = FRotator(CameraArm->GetRelativeRotation() + DeltaArmRotation);
 
 	rotNew.Pitch = FMath::ClampAngle(rotNew.Pitch, DefaultCameraRotation.Pitch-rotMax.Pitch, DefaultCameraRotation.Pitch+rotMax.Pitch);

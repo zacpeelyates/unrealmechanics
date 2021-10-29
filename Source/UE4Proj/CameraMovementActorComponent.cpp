@@ -16,8 +16,8 @@ UCameraMovementActorComponent::UCameraMovementActorComponent()
 
 	//Set Defaults
 	bCanCameraMove = true;
-	DefaultCameraMovementSpeed = 10.0f;
-	DefaultCameraRotationSpeed = 2.5f;
+	DefaultCameraMovementSpeed = 5.0f;
+	DefaultCameraRotationSpeed = 2.0f;
 	CameraMoveFactor = 1.0f;
 	MinDistance = 250.0f;
 	MaxDistance = 750.0f;
