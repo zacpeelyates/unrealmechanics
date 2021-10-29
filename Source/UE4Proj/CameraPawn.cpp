@@ -12,10 +12,10 @@ ACameraPawn::ACameraPawn()
 	DefaultCameraZoom = 500.0f;
 	DefaultCameraRotation = FRotator(-45.0f, 0.0f, 0.0f);
 	//Set Root Component
-	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
-	const float CollisionBoxSize = 30.0f;
-	SetRootComponent(CollisionBox);
-	CollisionBox->InitBoxExtent(FVector(CollisionBoxSize));
+	SetRootComponent(CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent")));
+	//Set Visual Player Mesh
+	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>((TEXT("MeshComponent")));
+	MeshComponent->SetupAttachment(RootComponent);
 
 	//Create + Attach Camera Arm
 	CameraArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraArm"));
@@ -74,7 +74,7 @@ void ACameraPawn::AddArmLength(float DeltaArmLength)
 
 void ACameraPawn::AddArmRotation(FRotator DeltaArmRotation)
 {
-	const FRotator rotMax = FRotator(-25.0f, 0.0f, 0.0f);
+	const FRotator rotMax = FRotator(-25.0f, -30.0f, -15.0f);
 	FRotator rotNew = FRotator(CameraArm->GetRelativeRotation() + DeltaArmRotation);
 
 	rotNew.Pitch = FMath::ClampAngle(rotNew.Pitch, DefaultCameraRotation.Pitch, rotMax.Pitch);

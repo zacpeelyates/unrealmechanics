@@ -36,12 +36,19 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 		USpringArmComponent* CameraArm;
 
+	UPROPERTY(VisibleAnywhere)
+		FRotator MaxRotationDelta;
+
+	UPROPERTY(EditAnywhere)
+		UStaticMeshComponent* MeshComponent;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	//Default CameraArm
 	float DefaultCameraZoom;
 	FRotator DefaultCameraRotation;
+	UPROPERTY(EditAnywhere)
 	UCameraMovementActorComponent* PawnMovementComponent;
 	//Getter functions
 	UFUNCTION(Category = "Getters")

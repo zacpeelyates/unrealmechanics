@@ -16,7 +16,9 @@ UCameraMovementActorComponent::UCameraMovementActorComponent()
 
 	//Set Defaults
 	bCanCameraMove = true;
+	bIsCameraFreeLook = true;
 	DefaultCameraMovementSpeed = 10.0f;
+	DefaultCameraRotationSpeed = 2.5f;
 	CameraMoveFactor = 1.0f;
 	MinDistance = 250.0f;
 	MaxDistance = 750.0f;
@@ -36,8 +38,6 @@ void UCameraMovementActorComponent::BeginPlay()
 void UCameraMovementActorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
 }
 
 
@@ -61,8 +61,7 @@ void UCameraMovementActorComponent::MoveCamera(FVector CameraDelta)
 	if(bCanCameraMove)
 	{
 		CameraDelta *= DefaultCameraMovementSpeed * CameraMoveFactor;
-		CameraDelta.Z = FMath::Clamp(GetCameraLocation().Z + CameraDelta.Z, MinDistance, MaxDistance);
-		CameraPawn->AddActorLocalOffset(CameraDelta,true);
+		CameraPawn->GetCamera()->AddRelativeLocation(CameraDelta, true);
 	}
 }
 
@@ -70,15 +69,22 @@ void UCameraMovementActorComponent::RotateCamera(FRotator CameraDelta)
 {
 	if (bCanCameraMove)
 	{
-		CameraDelta *= DefaultCameraMovementSpeed * CameraMoveFactor;
-		CameraPawn->SetActorRotation(GetCameraRotation() + CameraDelta);
+		CameraDelta *= DefaultCameraRotationSpeed * CameraMoveFactor;
+		CameraPawn->AddArmRotation(CameraDelta);
 	}
 }
 
 
 void UCameraMovementActorComponent::ResetCameraLocation()
 {
-	CameraPawn->SetActorLocation(FVector(0.0f, 0.0f, 0.0f));
-	CameraPawn->SetCameraArmLengthToDefault();
+	if (bCanCameraMove) {
+		CameraPawn->GetCamera()->SetRelativeRotation(CameraPawn->DefaultCameraRotation);
+		CameraPawn->SetCameraArmLengthToDefault();
+	}
+}
+
+void UCameraMovementActorComponent::SetCameraFreeLook(bool bIn)
+{
+	bIsCameraFreeLook = bIn;
 }
 
