@@ -25,7 +25,6 @@ public:
 protected:
 	//protected vars
 	bool bIsSprint;
-	bool bIsFreelook;
 	float baseWalkSpeed;
 	float sprintFactor;
 	

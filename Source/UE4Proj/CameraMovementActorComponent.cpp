@@ -16,7 +16,6 @@ UCameraMovementActorComponent::UCameraMovementActorComponent()
 
 	//Set Defaults
 	bCanCameraMove = true;
-	bIsCameraFreeLook = true;
 	DefaultCameraMovementSpeed = 10.0f;
 	DefaultCameraRotationSpeed = 2.5f;
 	CameraMoveFactor = 1.0f;
@@ -81,9 +80,3 @@ void UCameraMovementActorComponent::ResetCameraLocation()
 		CameraPawn->SetCameraArmLengthToDefault();
 	}
 }
-
-void UCameraMovementActorComponent::SetCameraFreeLook(bool bIn)
-{
-	bIsCameraFreeLook = bIn;
-}
-

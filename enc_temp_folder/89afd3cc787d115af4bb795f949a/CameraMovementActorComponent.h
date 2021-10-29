@@ -24,6 +24,7 @@ protected:
 
 	//Can Camera move?
 		bool bCanCameraMove;
+		bool bIsCameraFreeLook;
 	//Camera movement info
 		float DefaultCameraMovementSpeed;
 		float DefaultCameraRotationSpeed;
@@ -65,6 +66,9 @@ public:
 
 	UFUNCTION(Category = "Camera Movement")
 		virtual void ResetCameraLocation();
+
+	UFUNCTION(Category = "Camera Movement")
+		virtual void SetCameraFreeLook(bool bIn);
 
 
 

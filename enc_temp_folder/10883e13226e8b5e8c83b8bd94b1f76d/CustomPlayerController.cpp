@@ -13,7 +13,6 @@ ACustomPlayerController::ACustomPlayerController()
 	//allow pawn to tick every frame
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
-	bIsFreelook = false;
 
 }
 
@@ -72,12 +71,12 @@ void ACustomPlayerController::SprintEnd()
 
 void ACustomPlayerController::DelegateCameraFreeLookBegin()
 {
-	bIsFreelook = true;
+	CameraMovement->SetCameraFreeLook(true);
 }
 
 void ACustomPlayerController::DelegateCameraFreeLookEnd()
 {
-	bIsFreelook = false;
+	CameraMovement->SetCameraFreeLook(false);
 }
 
 void ACustomPlayerController::DelegateCameraPan(float value)
@@ -102,14 +101,7 @@ void ACustomPlayerController::DelegateCameraPitch(float value)
 
 void ACustomPlayerController::DelegateCameraYaw(float value)
 {
-	if (bIsFreelook)
-	{
-		CameraMovement->RotateCamera(FRotator(0.0f, value, 0.0f));
-	}
-	else
-	{
-		CameraPawn->AddActorLocalRotation(FRotator (0.0f, value, 0.0f));
-	}
+	CameraMovement->RotateCamera(FRotator(0.0f, value, 0.0f));
 }
 
 void ACustomPlayerController::DelegateCameraRoll(float value)
