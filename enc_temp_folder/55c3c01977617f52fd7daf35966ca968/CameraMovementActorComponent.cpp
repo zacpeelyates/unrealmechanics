@@ -78,6 +78,7 @@ void UCameraMovementActorComponent::RotateCamera(FRotator CameraDelta)
 void UCameraMovementActorComponent::ResetCameraLocation()
 {
 	if (bCanCameraMove) {
+		CameraPawn->GetCamera()->SetRelativeRotation(CameraPawn->DefaultCameraRotation);
 		CameraPawn->SetCameraArmLengthToDefault();
 	}
 }

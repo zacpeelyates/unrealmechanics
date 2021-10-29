@@ -10,7 +10,6 @@ ACameraPawn::ACameraPawn()
 {
 	//Set Default Values
 	DefaultCameraZoom = 500.0f;
-	DefaultCameraRotation = FRotator(-40.0f, 0.0f, 0.0f);
 	//Set Root Component
 	SetRootComponent(CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent")));
 	//Set Visual Player Mesh
@@ -43,7 +42,8 @@ ACameraPawn::ACameraPawn()
 void ACameraPawn::BeginPlay()
 {
 	Super::BeginPlay();
-	SetCameraArmLengthToDefault();
+	DefaultCameraRotation = GetCurrentCameraRotation();
+	
 }
 
 // Called every frame
@@ -73,12 +73,12 @@ void ACameraPawn::AddArmLength(float DeltaArmLength)
 
 void ACameraPawn::AddArmRotation(FRotator DeltaArmRotation)
 {
-	const FRotator rotMax = FRotator(25.0f, 40.0f, 15.0f);
+	const FRotator rotMax = FRotator(-25.0f, -30.0f, -15.0f);
 	FRotator rotNew = FRotator(CameraArm->GetRelativeRotation() + DeltaArmRotation);
 
-	rotNew.Pitch = FMath::ClampAngle(rotNew.Pitch, DefaultCameraRotation.Pitch-rotMax.Pitch, DefaultCameraRotation.Pitch+rotMax.Pitch);
-	rotNew.Yaw = FMath::ClampAngle(rotNew.Yaw, DefaultCameraRotation.Yaw-rotMax.Yaw, DefaultCameraRotation.Yaw+rotMax.Yaw);
-	rotNew.Roll = FMath::ClampAngle(rotNew.Roll, DefaultCameraRotation.Roll-rotMax.Roll, DefaultCameraRotation.Roll+rotMax.Roll);
+	rotNew.Pitch = FMath::ClampAngle(rotNew.Pitch, DefaultCameraRotation.Pitch, rotMax.Pitch);
+	rotNew.Yaw = FMath::ClampAngle(rotNew.Yaw, DefaultCameraRotation.Yaw, rotMax.Yaw);
+	rotNew.Roll = FMath::ClampAngle(rotNew.Roll, DefaultCameraRotation.Roll, rotMax.Roll);
 
 	CameraArm->SetRelativeRotation(rotNew);
 }
