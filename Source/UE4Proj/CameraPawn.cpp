@@ -10,6 +10,7 @@ ACameraPawn::ACameraPawn()
 {
 	//Set Default Values
 	DefaultCameraZoom = 500.0f;
+	MaxZoomDelta = DefaultCameraZoom / 2;
 	DefaultCameraRotation = FRotator(-40.0f, 0.0f, 0.0f);
 	//Set Root Component
 	SetRootComponent(CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent")));
@@ -43,7 +44,7 @@ ACameraPawn::ACameraPawn()
 void ACameraPawn::BeginPlay()
 {
 	Super::BeginPlay();
-	SetCameraArmLengthToDefault();
+	SetCameraArmLengthToDefault(false);
 }
 
 // Called every frame
@@ -68,7 +69,7 @@ FRotator ACameraPawn::GetCurrentCameraRotation()
 
 void ACameraPawn::AddArmLength(float DeltaArmLength)
 {
-	CameraArm->TargetArmLength += DeltaArmLength;
+	CameraArm->TargetArmLength = FMath::Clamp(DeltaArmLength + CameraArm->TargetArmLength, DefaultCameraZoom-MaxZoomDelta,DefaultCameraZoom+MaxZoomDelta);
 }
 
 void ACameraPawn::AddArmRotation(FRotator DeltaArmRotation)
@@ -83,9 +84,12 @@ void ACameraPawn::AddArmRotation(FRotator DeltaArmRotation)
 	CameraArm->SetRelativeRotation(rotNew);
 }
 
-void ACameraPawn::SetCameraArmLengthToDefault()
+void ACameraPawn::SetCameraArmLengthToDefault(bool bKeepZoom)
 {
-	CameraArm->TargetArmLength = DefaultCameraZoom;
+	if (!bKeepZoom)
+	{
+		CameraArm->TargetArmLength = DefaultCameraZoom;
+	}
 	CameraArm->SetRelativeRotation(DefaultCameraRotation);
 }
 

@@ -73,13 +73,12 @@ void ACustomPlayerController::SprintEnd()
 void ACustomPlayerController::DelegateCameraFreeLookBegin()
 {
 	bIsFreelook = true;
-	CameraMovement->ResetCameraLocation();
 }
 
 void ACustomPlayerController::DelegateCameraFreeLookEnd()
 {
 	bIsFreelook = false;
-	CameraMovement->ResetCameraLocation();
+	CameraPawn->SetCameraArmLengthToDefault(true);
 }
 
 void ACustomPlayerController::DelegateCameraPan(float value)
@@ -94,7 +93,8 @@ void ACustomPlayerController::DelegateCameraTilt(float value)
 
 void ACustomPlayerController::DelegateCameraZoom(float value)
 {
-	CameraMovement->MoveCamera(FVector(0.0, 0.0, value));
+	float zoomFactor = 50.0f;
+	CameraPawn->AddArmLength(value*zoomFactor);
 }
 
 void ACustomPlayerController::DelegateCameraPitch(float value)

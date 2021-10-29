@@ -19,8 +19,6 @@ UCameraMovementActorComponent::UCameraMovementActorComponent()
 	DefaultCameraMovementSpeed = 5.0f;
 	DefaultCameraRotationSpeed = 2.0f;
 	CameraMoveFactor = 1.0f;
-	MinDistance = 250.0f;
-	MaxDistance = 750.0f;
 }
 
 
@@ -77,6 +75,6 @@ void UCameraMovementActorComponent::RotateCamera(FRotator CameraDelta)
 void UCameraMovementActorComponent::ResetCameraLocation()
 {
 	if (bCanCameraMove) {
-		CameraPawn->SetCameraArmLengthToDefault();
+		CameraPawn->SetCameraArmLengthToDefault(false);
 	}
 }

@@ -39,14 +39,8 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 		FRotator MaxRotationDelta;
 
-	UPROPERTY(VisibleAnywhere)
-		float MaxZoomDelta;
-
-	//visual mesh representation
 	UPROPERTY(EditAnywhere)
 		UStaticMeshComponent* MeshComponent;
-
-	
 
 public:	
 	// Called every frame
@@ -73,7 +67,7 @@ public:
 	UFUNCTION()
 		virtual void AddArmRotation(FRotator DeltaArmRotation);
 	UFUNCTION()
-		virtual void SetCameraArmLengthToDefault(bool bKeepZoom = false);
+		virtual void SetCameraArmLengthToDefault();
 
 
 };
