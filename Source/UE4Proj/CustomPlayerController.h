@@ -28,6 +28,7 @@ protected:
 	bool bIsFreelook;
 	float baseWalkSpeed;
 	float sprintFactor;
+	float maxRoll;
 	
 
 	//overrides
@@ -48,11 +49,14 @@ protected:
 	virtual void DelegateCameraTilt(float value);
 	virtual void DelegateCameraYaw(float value);
 	virtual void DelegateCameraPitch(float value);
-	virtual void DelegateCameraRoll(float value);
 	//camera actions
 	virtual void DelegateCameraReset();
 	virtual void DelegateCameraFreeLookBegin();
 	virtual void DelegateCameraFreeLookEnd();
+	virtual void DelegateCameraRollLeftBegin();
+	virtual void DelegateCameraRollRightBegin();
+	virtual void DelegateCameraRollLeftEnd();
+	virtual void DelegateCameraRollRightEnd();
 	
 };
 

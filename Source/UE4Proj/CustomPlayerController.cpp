@@ -22,6 +22,7 @@ void ACustomPlayerController::BeginPlay()
 	Super::BeginPlay();
 	baseWalkSpeed = 5.0f;
 	sprintFactor = 2;
+	maxRoll = 15.0f;
 	bIsSprint = false;
 	CameraPawn = Cast<ACameraPawn>(GetPawn());
 	CameraMovement = CameraPawn->PawnMovementComponent;
@@ -49,7 +50,6 @@ void ACustomPlayerController::SetupInputComponent()
 	InputComponent->BindAxis("Axis_Camera_Zoom", this, &ACustomPlayerController::DelegateCameraZoom);
 	InputComponent->BindAxis("Axis_Camera_Pitch", this, &ACustomPlayerController::DelegateCameraPitch);
 	InputComponent->BindAxis("Axis_Camera_Yaw", this, &ACustomPlayerController::DelegateCameraYaw);
-	InputComponent->BindAxis("Axis_Camera_Roll", this, &ACustomPlayerController::DelegateCameraRoll);
 	//actions
 	//player actions
 	InputComponent->BindAction("Action_Sprint", IE_Pressed, this, &ACustomPlayerController::SprintBegin);
@@ -58,6 +58,10 @@ void ACustomPlayerController::SetupInputComponent()
 	InputComponent->BindAction("Action_Camera_Reset", IE_Pressed, this, &ACustomPlayerController::DelegateCameraReset);
 	InputComponent->BindAction("Action_Camera_FreeLook", IE_Pressed, this, &ACustomPlayerController::DelegateCameraFreeLookBegin);
 	InputComponent->BindAction("Action_Camera_FreeLook", IE_Released, this, &ACustomPlayerController::DelegateCameraFreeLookEnd);
+	InputComponent->BindAction("Action_Camera_Roll_Left", IE_Pressed, this, &ACustomPlayerController::DelegateCameraRollLeftBegin);
+	InputComponent->BindAction("Action_Camera_Roll_Left", IE_Released, this, &ACustomPlayerController::DelegateCameraRollLeftEnd);
+	InputComponent->BindAction("Action_Camera_Roll_Right", IE_Pressed, this, &ACustomPlayerController::DelegateCameraRollRightBegin);
+	InputComponent->BindAction("Action_Camera_Roll_Right", IE_Released, this, &ACustomPlayerController::DelegateCameraRollRightEnd);
 }
 
 void ACustomPlayerController::SprintBegin()
@@ -114,9 +118,24 @@ void ACustomPlayerController::DelegateCameraYaw(float value)
 	}
 }
 
-void ACustomPlayerController::DelegateCameraRoll(float value)
+void ACustomPlayerController::DelegateCameraRollLeftBegin()
 {
-	CameraMovement->RotateCamera(FRotator(0.0f, 0.0f, value));
+	CameraMovement->RotateCamera(FRotator(0.0f, 0.0f, maxRoll));
+}
+
+void ACustomPlayerController::DelegateCameraRollLeftEnd()
+{
+	CameraMovement->ResetCameraLocation();
+}
+
+void ACustomPlayerController::DelegateCameraRollRightBegin()
+{
+	CameraMovement->RotateCamera(FRotator(0.0f, 0.0f, -maxRoll));
+}
+
+void ACustomPlayerController::DelegateCameraRollRightEnd()
+{
+	CameraMovement->ResetCameraLocation();
 }
 
 void ACustomPlayerController::DelegateCameraReset()
