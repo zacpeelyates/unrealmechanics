@@ -120,7 +120,7 @@ void ACustomPlayerController::DelegateCameraYaw(float value)
 
 void ACustomPlayerController::DelegateCameraRollLeftBegin()
 {
-	CameraMovement->RotateCamera(FRotator(0.0f, 0.0f, maxRoll));
+	CameraMovement->RotateCamera(FRotator(0.0f, 0.0f, -maxRoll));
 }
 
 void ACustomPlayerController::DelegateCameraRollLeftEnd()
@@ -130,7 +130,7 @@ void ACustomPlayerController::DelegateCameraRollLeftEnd()
 
 void ACustomPlayerController::DelegateCameraRollRightBegin()
 {
-	CameraMovement->RotateCamera(FRotator(0.0f, 0.0f, -maxRoll));
+	CameraMovement->RotateCamera(FRotator(0.0f, 0.0f, maxRoll));
 }
 
 void ACustomPlayerController::DelegateCameraRollRightEnd()
