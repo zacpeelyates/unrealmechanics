@@ -22,5 +22,25 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	UPROPERTY(EditAnywhere)
+	AActor* VisualRepresentation;
+	//getters
+	bool IsEnabled();
+	AActor* GetLinkedPortal();
+	//setters
+	void SetEnabled(bool bIn);
+	void SetLinkedPortal(APortalActor* NewLinkedPortal);
+	//portal functions
+	bool IsInPortal(FVector TargetLocation, FVector PortalLocation, FVector PortalNormal);
+	void TeleportActor(AActor* TeleportActor);
 
+private:
+	bool bIsEnabled;
+	UPROPERTY(EditAnywhere);
+	APortalActor* LinkedPortal;
+	FVector LastTargetPosition;
+	bool IsLastPositionInFrontOfPortal;
+	//matrix transform utils
+	FVector ConvertLocationToLocalSpace(FVector Location, AActor* CurrentSpace, AActor* TargetSpace);
+	FRotator ConvertRotationToLocalSpace(FRotator Rotation, AActor* CurrentSpace, AActor* TargetSpace);
 };
