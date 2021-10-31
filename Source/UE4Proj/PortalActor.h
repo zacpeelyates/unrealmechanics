@@ -29,6 +29,7 @@ public:
 	AActor* GetLinkedPortal();
 	//setters
 	void SetEnabled(bool bIn);
+	UFUNCTION(BlueprintCallable)
 	void SetLinkedPortal(APortalActor* NewLinkedPortal);
 	//portal functions
 	bool IsInPortal(FVector TargetLocation, FVector PortalLocation, FVector PortalNormal);
