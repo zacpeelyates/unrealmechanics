@@ -22,7 +22,6 @@ public:
 	ACameraPawn* CameraPawn;
 	UPROPERTY(EditAnywhere)
 	UCameraMovementActorComponent* CameraMovement;
-	UPROPERTY(VisibleAnywhere)
 	APortalManager* GetPortalManager();
 
 protected:
@@ -32,7 +31,7 @@ protected:
 	float baseWalkSpeed;
 	float sprintFactor;
 	float maxRoll;
-
+	UPROPERTY(EditAnywhere)
 	APortalManager* PortalManager;
 	//overrides
 	virtual void BeginPlay() override;

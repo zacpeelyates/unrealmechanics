@@ -17,11 +17,18 @@
 // Sets default values
 APortalManager::APortalManager()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	SetRootComponent(CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent")));
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	PortalTexture = nullptr;
 	ScreenX = 0;
 	ScreenY = 0;
+
+	//attach scene capture
+	SceneCapture = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("PortalSceneCapture"));
+	SceneCapture->SetupAttachment(RootComponent);
+	//attach render 
+	PortalTexture = CreateDefaultSubobject<UTextureRenderTarget2D>(TEXT("RenderTexture"));
 }
 
 // Called when the game starts or when spawned
@@ -39,7 +46,13 @@ void APortalManager::BeginPlay()
 void APortalManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	Update(DeltaTime); //update is in seperate method so that it may be force-called 
+	CreateRenderTarget();
+	APortalActor* PortalToUpdate = UpdateClosestPortal();
+	if (PortalToUpdate != nullptr)
+	{
+		UpdateView(PortalToUpdate);
+	}
+	
 }
 
 void APortalManager::HandleTeleport(APortalActor* PortalActor, AActor* TeleportActor)
@@ -57,9 +70,8 @@ void APortalManager::HandleTeleport(APortalActor* PortalActor, AActor* TeleportA
 
 void APortalManager::Initialize()
 {
-	//attach scene capture
-	SceneCapture = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("PortalSceneCapture"));
-	SceneCapture->SetupAttachment(RootComponent);
+	//create portal texture
+	CreateRenderTarget();
 	//setup scene capture
 	SceneCapture->bCaptureEveryFrame = false;
 	SceneCapture->bCaptureOnMovement = false;
@@ -67,7 +79,7 @@ void APortalManager::Initialize()
 	SceneCapture->bUseCustomProjectionMatrix = true;
 	SceneCapture->TextureTarget = nullptr;
 	SceneCapture->CaptureSource = ESceneCaptureSource::SCS_SceneColorHDRNoAlpha;
-	
+
 	//override scene capture vars
 	FPostProcessSettings PostProcessSettings;
 	PostProcessSettings.bOverride_MotionBlurAmount = true;
@@ -75,16 +87,10 @@ void APortalManager::Initialize()
 	PostProcessSettings.bOverride_ScreenPercentage = true;
 	PostProcessSettings.ScreenPercentage = 100.0f;
 	SceneCapture->PostProcessSettings = PostProcessSettings;
-
-	//create portal texture
-	CreateRenderTarget();
 }
 
 void APortalManager::CreateRenderTarget()
 {
-	if(PortalTexture == nullptr)
-	{
-		PortalTexture = CreateDefaultSubobject<UTextureRenderTarget2D>(TEXT("RenderTexture"));
 		check(PortalTexture);
 		PortalTexture->RenderTargetFormat = ETextureRenderTargetFormat::RTF_RGBA16f;
 		PortalTexture->Filter = TextureFilter::TF_Bilinear;
@@ -96,17 +102,6 @@ void APortalManager::CreateRenderTarget()
 		PortalTexture->AddressX = TextureAddress::TA_Clamp;
 		PortalTexture->AddressY = TextureAddress::TA_Clamp;
 		PortalTexture->UpdateResource();                   
-	}
-}
-
-void APortalManager::Update(float DeltaTime)
-{
-	CreateRenderTarget();
-	APortalActor* PortalToUpdate = UpdateClosestPortal();
-	if(PortalToUpdate != nullptr)
-	{
-		UpdateView(PortalToUpdate);
-	}
 }
 
 APortalActor* APortalManager::UpdateClosestPortal()
@@ -118,11 +113,13 @@ APortalActor* APortalManager::UpdateClosestPortal()
 	{
 		APortalActor* CurrentPortal = *PortalIter;
 		CurrentPortal->ClearRenderTexture();
-		CurrentPortal->SetEnabled(false);
-		const float CurrentDistance = FMath::Abs(FVector::Dist(PlayerController->GetFocalLocation(), CurrentPortal->GetActorLocation()));
+		FVector fLocation = PlayerController->GetFocalLocation();
+		FVector portalLocation = CurrentPortal->GetActorLocation();
+		float CurrentDistance = FMath::Abs(FVector::Dist(fLocation, portalLocation));
 		if(CurrentDistance < ClosestDistance)
 		{
 			ClosestDistance = CurrentDistance;
+			ClosestPortal = CurrentPortal;
 		}
 	}
 	//return closest portal
@@ -147,7 +144,7 @@ void APortalManager::UpdateView(APortalActor* PortalActor)
 	SceneCapture->ClipPlaneBase = LinkedPortal->GetActorLocation() + SceneCapture->ClipPlaneNormal * -1.5f; //avoid pixel border issues with offset
 	//projection matrix
 	FSceneViewProjectionData PlayerViewProjectionData;
-	ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(PlayerController);
+	ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer();
 	LocalPlayer->GetProjectionData(LocalPlayer->ViewportClient->Viewport, EStereoscopicPass::eSSP_FULL, PlayerViewProjectionData);
 	SceneCapture->CustomProjectionMatrix = PlayerViewProjectionData.ProjectionMatrix;
 	//enable portal and add texture

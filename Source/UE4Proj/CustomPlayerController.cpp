@@ -15,14 +15,13 @@ ACustomPlayerController::ACustomPlayerController()
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 	bIsFreelook = false;
-	PortalManager = CreateDefaultSubobject<APortalManager>(TEXT("PortalManager"));
 }
 
 APortalManager* ACustomPlayerController::GetPortalManager()
 {
 	if(PortalManager == nullptr)
 	{
-		PortalManager = CreateDefaultSubobject<APortalManager>(TEXT("PortalManager"));
+		PortalManager = NewObject<APortalManager>();
 	}
 	return PortalManager;
 }
@@ -36,6 +35,7 @@ void ACustomPlayerController::BeginPlay()
 	bIsSprint = false;
 	CameraPawn = Cast<ACameraPawn>(GetPawn());
 	CameraMovement = CameraPawn->PawnMovementComponent;
+	
 
 }
 

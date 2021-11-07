@@ -101,6 +101,6 @@ bool APortalActor::IsInBounds(FVector Location, UBoxComponent* Bounds)
 APortalManager* APortalActor::GetPortalManager()
 {
 	//this should be in a better place its very messy and breaks encapsulation but i just want it to work LOL
-	return Cast<APortalManager>(UGameplayStatics::GetPlayerController(GetWorld(), 0))
+	return Cast<APortalManager>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 }
 

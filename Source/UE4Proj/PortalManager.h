@@ -35,7 +35,6 @@ public:
 	void Update(float DeltaTime);
 	APortalActor* UpdateClosestPortal();
 	void UpdateView(APortalActor* PortalActor);
-	void SetController(ACameraPawn Owner);
 
 private:
 	void CreateRenderTarget();

@@ -24,9 +24,6 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	//Root Comp + Collider
-	UPROPERTY(VisibleAnywhere)
-		UBoxComponent* CollisionBox;
 
 	//Player Camera
 	UPROPERTY(VisibleAnywhere)
