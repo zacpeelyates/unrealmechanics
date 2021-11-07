@@ -5,6 +5,7 @@
 #include "CameraMovementActorComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/PlayerController.h"
+#include "PortalManager.h"
 
 
 
@@ -14,7 +15,16 @@ ACustomPlayerController::ACustomPlayerController()
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 	bIsFreelook = false;
+	PortalManager = CreateDefaultSubobject<APortalManager>(TEXT("PortalManager"));
+}
 
+APortalManager* ACustomPlayerController::GetPortalManager()
+{
+	if(PortalManager == nullptr)
+	{
+		PortalManager = CreateDefaultSubobject<APortalManager>(TEXT("PortalManager"));
+	}
+	return PortalManager;
 }
 
 void ACustomPlayerController::BeginPlay()
@@ -63,6 +73,8 @@ void ACustomPlayerController::SetupInputComponent()
 	InputComponent->BindAction("Action_Camera_Roll_Right", IE_Pressed, this, &ACustomPlayerController::DelegateCameraRollRightBegin);
 	InputComponent->BindAction("Action_Camera_Roll_Right", IE_Released, this, &ACustomPlayerController::DelegateCameraRollRightEnd);
 }
+
+//TODO: Add PlayerMovementComponent
 
 void ACustomPlayerController::SprintBegin()
 {
@@ -125,7 +137,7 @@ void ACustomPlayerController::DelegateCameraRollLeftBegin()
 
 void ACustomPlayerController::DelegateCameraRollLeftEnd()
 {
-	CameraMovement->ResetCameraLocation();
+	CameraMovement->ResetCameraLocation(true);
 }
 
 void ACustomPlayerController::DelegateCameraRollRightBegin()
@@ -135,7 +147,7 @@ void ACustomPlayerController::DelegateCameraRollRightBegin()
 
 void ACustomPlayerController::DelegateCameraRollRightEnd()
 {
-	CameraMovement->ResetCameraLocation();
+	CameraMovement->ResetCameraLocation(true);
 }
 
 void ACustomPlayerController::DelegateCameraReset()

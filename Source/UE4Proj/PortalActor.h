@@ -3,8 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PortalManager.h"
+#include "Components/BoxComponent.h"
 #include "GameFramework/Actor.h"
 #include "PortalActor.generated.h"
+
 
 UCLASS()
 class UE4PROJ_API APortalActor : public AActor
@@ -22,18 +25,22 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	UPROPERTY(EditAnywhere)
-	AActor* VisualRepresentation;
 	//getters
 	bool IsEnabled();
-	AActor* GetLinkedPortal();
+	APortalActor* GetLinkedPortal();
 	//setters
 	void SetEnabled(bool bIn);
 	UFUNCTION(BlueprintCallable)
 	void SetLinkedPortal(APortalActor* NewLinkedPortal);
 	//portal functions
+	UFUNCTION(BlueprintCallable)
 	bool IsInPortal(FVector TargetLocation, FVector PortalLocation, FVector PortalNormal);
 	void TeleportActor(AActor* TeleportActor);
+	//portal render texture functions (implemented in blueprint)
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetRenderTexture(UTexture* RenderTexture);
+	UFUNCTION(BlueprintImplementableEvent)
+	void ClearRenderTexture();
 
 private:
 	bool bIsEnabled;
@@ -41,7 +48,8 @@ private:
 	APortalActor* LinkedPortal;
 	FVector LastTargetPosition;
 	bool IsLastPositionInFrontOfPortal;
-	//matrix transform utils
-	FVector ConvertLocationToLocalSpace(FVector Location, AActor* CurrentSpace, AActor* TargetSpace);
-	FRotator ConvertRotationToLocalSpace(FRotator Rotation, AActor* CurrentSpace, AActor* TargetSpace);
+	UFUNCTION(BlueprintCallable)
+	bool IsInBounds(FVector Location, UBoxComponent* Bounds);
+	UFUNCTION(BlueprintCallable)
+	APortalManager* GetPortalManager();
 };

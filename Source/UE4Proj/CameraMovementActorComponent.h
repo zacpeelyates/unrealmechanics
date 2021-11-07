@@ -64,7 +64,7 @@ public:
 		virtual void RotateCamera(FRotator CameraDelta);
 
 	UFUNCTION(Category = "Camera Movement")
-		virtual void ResetCameraLocation();
+		virtual void ResetCameraLocation(bool bKeepZoom = false);
 
 
 

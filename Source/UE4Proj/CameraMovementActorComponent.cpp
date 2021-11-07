@@ -72,9 +72,9 @@ void UCameraMovementActorComponent::RotateCamera(FRotator CameraDelta)
 }
 
 
-void UCameraMovementActorComponent::ResetCameraLocation()
+void UCameraMovementActorComponent::ResetCameraLocation(bool bKeepZoom)
 {
 	if (bCanCameraMove) {
-		CameraPawn->SetCameraArmLengthToDefault(false);
+		CameraPawn->SetCameraArmLengthToDefault(bKeepZoom);
 	}
 }

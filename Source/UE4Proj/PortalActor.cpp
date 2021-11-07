@@ -1,7 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
+#include "kismet/GameplayStatics.h"
 #include "PortalActor.h"
+#include "PortalUtils.h"
 
 // Sets default values
 APortalActor::APortalActor()
@@ -9,10 +10,6 @@ APortalActor::APortalActor()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	bIsEnabled = false;
-	if (VisualRepresentation != nullptr)
-	{
-		VisualRepresentation->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	}
 }
 
 // Called when the game starts or when spawned
@@ -33,7 +30,7 @@ bool APortalActor::IsEnabled()
 	return bIsEnabled;
 }
 
-AActor* APortalActor::GetLinkedPortal()
+APortalActor* APortalActor::GetLinkedPortal()
 {
 	return LinkedPortal;
 }
@@ -70,52 +67,40 @@ bool APortalActor::IsInPortal(FVector TargetLocation, FVector PortalLocation, FV
 
 void APortalActor::TeleportActor(AActor* TargetActor)
 {
-		//store velocity
-		FVector TeleportVelocity = TargetActor->GetVelocity();
-		//location
-		FVector NewLocation = ConvertLocationToLocalSpace(TargetActor->GetActorLocation(), this, LinkedPortal);
-		TargetActor->SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
-		//rotation
-		TargetActor->SetActorRotation(ConvertRotationToLocalSpace(TargetActor->GetActorRotation(), this, LinkedPortal));
-		//reapply velocity in portal direction TODO: Move this to it's own method!
-		FVector OrientedVelocity;
-		OrientedVelocity.X = FVector::DotProduct(TeleportVelocity, GetActorForwardVector());
-		OrientedVelocity.Y = FVector::DotProduct(TeleportVelocity, GetActorRightVector());
-		OrientedVelocity.Z = FVector::DotProduct(TeleportVelocity, GetActorUpVector());
-		OrientedVelocity = OrientedVelocity.X * LinkedPortal->GetActorForwardVector()
-			+ OrientedVelocity.Y * LinkedPortal->GetActorRightVector()
-			+ OrientedVelocity.Z * LinkedPortal->GetActorUpVector();
+	//store velocity
+	FVector TeleportVelocity = TargetActor->GetVelocity();
+	//location
+	FVector NewLocation = PortalUtils::ConvertLocationToLocalSpace(TargetActor->GetActorLocation(), this, LinkedPortal);
+	TargetActor->SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
+	//rotation
+	TargetActor->SetActorRotation(PortalUtils::ConvertRotationToLocalSpace(TargetActor->GetActorRotation(), this, LinkedPortal));
+	//reapply velocity in portal direction TODO: Move this to it's own method!
+	FVector OrientedVelocity;
+	OrientedVelocity.X = FVector::DotProduct(TeleportVelocity, GetActorForwardVector());
+	OrientedVelocity.Y = FVector::DotProduct(TeleportVelocity, GetActorRightVector());
+	OrientedVelocity.Z = FVector::DotProduct(TeleportVelocity, GetActorUpVector());
+	OrientedVelocity = OrientedVelocity.X * LinkedPortal->GetActorForwardVector()
+		+ OrientedVelocity.Y * LinkedPortal->GetActorRightVector()
+		+ OrientedVelocity.Z * LinkedPortal->GetActorUpVector();
 
-		TargetActor->GetRootComponent()->ComponentVelocity = OrientedVelocity;
-	
-};
-
-//utilty methods, could probably be in a static class somewhere
-FVector APortalActor::ConvertLocationToLocalSpace(FVector Location, AActor* CurrentSpace, AActor* TargetSpace)
-{
-	if(CurrentSpace == nullptr || TargetSpace == nullptr)
-	{
-		return FVector::ZeroVector;
-	}
-
-	const FVector Direction = Location - CurrentSpace->GetActorLocation();
-	FVector NewDirection;
-	NewDirection.X = FVector::DotProduct(Direction, CurrentSpace->GetActorForwardVector());
-	NewDirection.Y = FVector::DotProduct(Direction, CurrentSpace->GetActorRightVector());
-	NewDirection.Z = FVector::DotProduct(Direction, CurrentSpace->GetActorUpVector());
-	NewDirection = NewDirection.X * TargetSpace->GetActorForwardVector()
-				 + NewDirection.Y * TargetSpace->GetActorRightVector()
-				 + NewDirection.Z * TargetSpace->GetActorUpVector();
-	return TargetSpace->GetActorLocation() + NewDirection;
+	TargetActor->GetRootComponent()->ComponentVelocity = OrientedVelocity;
 }
 
-FRotator APortalActor::ConvertRotationToLocalSpace(FRotator Rotation, AActor* CurrentSpace, AActor* TargetSpace)
+bool APortalActor::IsInBounds(FVector Location, UBoxComponent* Bounds)
 {
-	if (CurrentSpace == nullptr || TargetSpace == nullptr)
-	{
-		return FRotator::ZeroRotator;
-	}
-	return (TargetSpace->GetTransform().GetRotation() * CurrentSpace->GetTransform().GetRotation().Inverse() * FQuat(Rotation)).Rotator();
+	if (Bounds == nullptr) return false;
+
+	const FVector Dir = Location - Bounds->GetComponentLocation();
+	const FVector BoundsExtent = Bounds->GetScaledBoxExtent();
+
+	return FMath::Abs(FVector::DotProduct(Dir, Bounds->GetForwardVector())) <= BoundsExtent.X
+		&& FMath::Abs(FVector::DotProduct(Dir, Bounds->GetRightVector())) <= BoundsExtent.Y
+		&& FMath::Abs(FVector::DotProduct(Dir, Bounds->GetUpVector())) <= BoundsExtent.Z;
 }
 
+APortalManager* APortalActor::GetPortalManager()
+{
+	//this should be in a better place its very messy and breaks encapsulation but i just want it to work LOL
+	return Cast<APortalManager>(UGameplayStatics::GetPlayerController(GetWorld(), 0))
+}
 

@@ -1,10 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
-
 #include "CoreMinimal.h"
 #include "CameraPawn.h"
 #include "CustomPlayerController.generated.h"
+
+//forward declare
+class APortalManager;
 
 /**
  * 
@@ -20,7 +22,8 @@ public:
 	ACameraPawn* CameraPawn;
 	UPROPERTY(EditAnywhere)
 	UCameraMovementActorComponent* CameraMovement;
-	
+	UPROPERTY(VisibleAnywhere)
+	APortalManager* GetPortalManager();
 
 protected:
 	//protected vars
@@ -29,8 +32,8 @@ protected:
 	float baseWalkSpeed;
 	float sprintFactor;
 	float maxRoll;
-	
 
+	APortalManager* PortalManager;
 	//overrides
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
