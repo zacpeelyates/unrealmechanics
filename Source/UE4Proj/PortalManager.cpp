@@ -107,7 +107,7 @@ void APortalManager::CreateRenderTarget()
 APortalActor* APortalManager::UpdateClosestPortal()
 {
 	//only update closest portal
-	float	ClosestDistance = INT32_MAX;
+	float	ClosestDistance = FLT_MAX;
 	APortalActor* ClosestPortal = nullptr;
 	for (TActorIterator<APortalActor>PortalIter(GetWorld()); PortalIter; ++PortalIter)
 	{
@@ -115,7 +115,7 @@ APortalActor* APortalManager::UpdateClosestPortal()
 		CurrentPortal->ClearRenderTexture();
 		FVector fLocation = PlayerController->GetFocalLocation();
 		FVector portalLocation = CurrentPortal->GetActorLocation();
-		float CurrentDistance = FMath::Abs(FVector::Dist(fLocation, portalLocation));
+		const float CurrentDistance = FMath::Abs(FVector::Dist(fLocation, portalLocation));
 		if(CurrentDistance < ClosestDistance)
 		{
 			ClosestDistance = CurrentDistance;

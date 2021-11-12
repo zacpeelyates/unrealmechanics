@@ -29,13 +29,13 @@ APortalManager* ACustomPlayerController::GetPortalManager()
 void ACustomPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	baseWalkSpeed = 5.0f;
-	sprintFactor = 2;
-	maxRoll = 15.0f;
+	BaseWalkSpeed = 5.0f;
+	SprintFactor = 2;
+	MaxRoll = 15.0f;
 	bIsSprint = false;
 	CameraPawn = Cast<ACameraPawn>(GetPawn());
-	CameraMovement = CameraPawn->PawnMovementComponent;
-	
+	CameraMovement = CameraPawn->CameraMovementComponent;
+	ItemHolder = CameraPawn->ItemHolderComponent;
 
 }
 
@@ -72,9 +72,12 @@ void ACustomPlayerController::SetupInputComponent()
 	InputComponent->BindAction("Action_Camera_Roll_Left", IE_Released, this, &ACustomPlayerController::DelegateCameraRollLeftEnd);
 	InputComponent->BindAction("Action_Camera_Roll_Right", IE_Pressed, this, &ACustomPlayerController::DelegateCameraRollRightBegin);
 	InputComponent->BindAction("Action_Camera_Roll_Right", IE_Released, this, &ACustomPlayerController::DelegateCameraRollRightEnd);
+	//item actions
+	InputComponent->BindAction("Action_Item_Pickup", IE_Pressed, this, &ACustomPlayerController::DelegateItemPickup);
+	InputComponent->BindAction("Action_Item_Pickup", IE_Released, this, &ACustomPlayerController::DelegateItemRelease);
+	InputComponent->BindAction("Action_Item_Throw", IE_Pressed, this, &ACustomPlayerController::DelegateItemThrow);
 }
 
-//TODO: Add PlayerMovementComponent
 
 void ACustomPlayerController::SprintBegin()
 {
@@ -126,13 +129,14 @@ void ACustomPlayerController::DelegateCameraYaw(float value)
 	}
 	else
 	{
-		CameraPawn->AddActorLocalRotation(FRotator (0.0f, value, 0.0f));
+		CameraPawn->RotateCharacter(FRotator(0.0f, value, 0.0f));
 	}
 }
 
+
 void ACustomPlayerController::DelegateCameraRollLeftBegin()
 {
-	CameraMovement->RotateCamera(FRotator(0.0f, 0.0f, -maxRoll));
+	CameraMovement->RotateCamera(FRotator(0.0f, 0.0f, -MaxRoll));
 }
 
 void ACustomPlayerController::DelegateCameraRollLeftEnd()
@@ -142,12 +146,27 @@ void ACustomPlayerController::DelegateCameraRollLeftEnd()
 
 void ACustomPlayerController::DelegateCameraRollRightBegin()
 {
-	CameraMovement->RotateCamera(FRotator(0.0f, 0.0f, maxRoll));
+	CameraMovement->RotateCamera(FRotator(0.0f, 0.0f, MaxRoll));
 }
 
 void ACustomPlayerController::DelegateCameraRollRightEnd()
 {
 	CameraMovement->ResetCameraLocation(true);
+}
+
+void ACustomPlayerController::DelegateItemPickup()
+{
+	ItemHolder->RequestPickup();
+}
+
+void ACustomPlayerController::DelegateItemRelease()
+{
+	ItemHolder->RequestRelease();
+}
+
+void ACustomPlayerController::DelegateItemThrow()
+{
+	ItemHolder->RequestThrow();
 }
 
 void ACustomPlayerController::DelegateCameraReset()
@@ -157,13 +176,14 @@ void ACustomPlayerController::DelegateCameraReset()
 
 void ACustomPlayerController::DelegateMoveForward(float value)
 {
-	const float moveSpeed = bIsSprint ?  baseWalkSpeed * sprintFactor : baseWalkSpeed;
-	CameraPawn->AddActorLocalOffset(FVector(value, 0, 0)*moveSpeed);
+	const float moveSpeed = bIsSprint ?  BaseWalkSpeed * SprintFactor : BaseWalkSpeed;
+	CameraPawn->MoveCharacter(FVector(moveSpeed * value, 0,0 ));
+	
 }
 
 void ACustomPlayerController::DelegateMoveStrafe(float value)
 {
-	const float moveSpeed = bIsSprint ? baseWalkSpeed * sprintFactor : baseWalkSpeed;
-	CameraPawn->AddActorLocalOffset(FVector(0, value, 0)*moveSpeed);
+	const float moveSpeed = bIsSprint ? BaseWalkSpeed * SprintFactor : BaseWalkSpeed;
+	CameraPawn->MoveCharacter(FVector(0, moveSpeed*value, 0));
 }
 

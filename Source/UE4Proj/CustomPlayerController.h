@@ -2,15 +2,12 @@
 
 #pragma once
 #include "CoreMinimal.h"
+#include "ItemHolderComponent.h"
 #include "CameraPawn.h"
 #include "CustomPlayerController.generated.h"
 
 //forward declare
 class APortalManager;
-
-/**
- * 
- */
 UCLASS()
 class UE4PROJ_API ACustomPlayerController : public APlayerController
 {
@@ -22,15 +19,19 @@ public:
 	ACameraPawn* CameraPawn;
 	UPROPERTY(EditAnywhere)
 	UCameraMovementActorComponent* CameraMovement;
+	UPROPERTY(EditAnywhere)
+	UCharacterMovementComponent* PlayerMovement;
+	UPROPERTY()
+	UItemHolderComponent* ItemHolder;
 	APortalManager* GetPortalManager();
 
 protected:
 	//protected vars
 	bool bIsSprint;
 	bool bIsFreelook;
-	float baseWalkSpeed;
-	float sprintFactor;
-	float maxRoll;
+	float BaseWalkSpeed;
+	float SprintFactor;
+	float MaxRoll;
 	UPROPERTY(EditAnywhere)
 	APortalManager* PortalManager;
 	//overrides
@@ -59,6 +60,10 @@ protected:
 	virtual void DelegateCameraRollRightBegin();
 	virtual void DelegateCameraRollLeftEnd();
 	virtual void DelegateCameraRollRightEnd();
+	//item actions
+	virtual void DelegateItemPickup();
+	virtual void DelegateItemRelease();
+	virtual void DelegateItemThrow();
 	
 };
 

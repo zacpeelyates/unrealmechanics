@@ -4,7 +4,9 @@
 
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Components/BoxComponent.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "ItemHolderComponent.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "CameraPawn.generated.h"
@@ -12,7 +14,7 @@
 class UCameraMovementActorComponent;
 
 UCLASS()
-class UE4PROJ_API ACameraPawn : public APawn
+class UE4PROJ_API ACameraPawn : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -43,16 +45,20 @@ protected:
 	UPROPERTY(EditAnywhere)
 		UStaticMeshComponent* MeshComponent;
 
-	
 
-public:	
+public:
+	UPROPERTY(EditAnywhere)
+	USceneComponent* RootCompRef;
+
+	UPROPERTY(EditAnywhere)
+		UItemHolderComponent* ItemHolderComponent;
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	//Default CameraArm
 	float DefaultCameraZoom;
 	FRotator DefaultCameraRotation;
 	UPROPERTY(EditAnywhere)
-	UCameraMovementActorComponent* PawnMovementComponent;
+	UCameraMovementActorComponent* CameraMovementComponent;
 	//Getter functions
 	UFUNCTION(Category = "Getters")
 		UCameraComponent* GetCamera() const { return PlayerCamera; }
@@ -72,5 +78,9 @@ public:
 	UFUNCTION()
 		virtual void SetCameraArmLengthToDefault(bool bKeepZoom = false);
 
+	//Movement Functions
+	void MoveCharacter(FVector MoveVec);
+	void RotateCharacter(FRotator Rot);
 
 };
+
