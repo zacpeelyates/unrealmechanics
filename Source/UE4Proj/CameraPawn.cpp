@@ -66,7 +66,7 @@ void ACameraPawn::Tick(float DeltaTime)
 //Movement Definitions
 void ACameraPawn::MoveCharacter(FVector MoveVec)
 {
-	AddMovementInput(MoveVec);
+	RootComponent->AddLocalOffset(MoveVec);
 }
 
 void ACameraPawn::RotateCharacter(FRotator Rot)
