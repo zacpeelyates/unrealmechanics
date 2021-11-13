@@ -96,12 +96,7 @@ void APickupActor::Preview()
 		PreviewCopy->Holder = Holder;
 		PreviewCopy->AttachToActor(Holder, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 		PreviewCopy->MeshComponent->SetRelativeLocationAndRotation(Holder->GetActorLocation(),Holder->GetActorRotation());
-
-		
-		UMaterialInstanceDynamic* mid =  PreviewCopy->MeshComponent->CreateAndSetMaterialInstanceDynamicFromMaterial(0, MeshComponent->GetMaterial(0));
-		mid->BlendMode = BLEND_Translucent;
-		mid->SetScalarParameterValue("OPACITY", 0.5);
-		
+		PreviewCopy->MeshComponent->SetMaterial(0,PreviewMaterial);
 		PreviewTimer = BasePreviewTime;
 		PreviewCopy->Throw();
 	}

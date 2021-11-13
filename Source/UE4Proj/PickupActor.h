@@ -30,6 +30,8 @@ public:
 	bool bCanPickup;
 
 private:
+	UPROPERTY(EditAnywhere)
+	UMaterial* PreviewMaterial;
 	UPROPERTY(VisibleAnywhere)
 	AActor* Holder; 
 	UPROPERTY(EditAnywhere)
