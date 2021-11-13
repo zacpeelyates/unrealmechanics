@@ -18,8 +18,6 @@ APickupActor::APickupActor()
 	Holder = nullptr;
 	BasePreviewTime = 3.0f;
 	PreviewTimer = BasePreviewTime;
-	ThrowZOffset = 15.0f;
-	ThrowForce = 25000.0f;
 	bCanCopy = true;
 	bCanPickup = true;
 }
@@ -29,7 +27,7 @@ void APickupActor::BeginPlay()
 {
 	Super::BeginPlay();
 	MeshComponent->SetSimulatePhysics(true); \
-	defaultCollision = MeshComponent->GetCollisionEnabled();
+	DefaultCollisionType = MeshComponent->GetCollisionEnabled();
 }
 
 // Called every frame
@@ -59,7 +57,7 @@ void APickupActor::Release()
 {
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	Holder = nullptr;
-	MeshComponent->SetCollisionEnabled(defaultCollision);
+	MeshComponent->SetCollisionEnabled(DefaultCollisionType);
 	MeshComponent->SetSimulatePhysics(true);
 	PreviewTimer = BasePreviewTime;
 	if(PreviewCopy != nullptr)
@@ -72,10 +70,12 @@ void APickupActor::Release()
 void APickupActor::Throw()
 {
 	if (Holder != nullptr) {
-		FVector ThrowVector = Holder->GetActorForwardVector() * ThrowForce;
-		ThrowVector.Z += ThrowZOffset;
+		const FVector ThrowF = Holder->GetActorForwardVector() * ThrowVector.X;
+		const FVector ThrowR = Holder->GetActorRightVector() * ThrowVector.Y;
+		const FVector ThrowU = Holder->GetActorUpVector() * ThrowVector.Z;
 		Release();
-		MeshComponent->AddImpulse(ThrowVector);
+		MeshComponent->AddImpulse(ThrowF + ThrowU + ThrowR);
+		
 	}
 }
 
@@ -89,7 +89,7 @@ void APickupActor::Preview()
 		const FRotator R = GetActorRotation();
 		PreviewCopy = (APickupActor*)GetWorld()->SpawnActor(APickupActor::StaticClass(), &L, &R, SpawnParameters);
 		MeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		PreviewCopy->MeshComponent->SetCollisionEnabled(defaultCollision);
+		PreviewCopy->MeshComponent->SetCollisionEnabled(DefaultCollisionType);
 		PreviewCopy->MeshComponent->SetSimulatePhysics(false);
 		PreviewCopy->bCanPickup = false;
 		PreviewCopy->bCanCopy = false; //prevent copies from making copies which would cause the world to end or something
@@ -103,13 +103,21 @@ void APickupActor::Preview()
 	
 	if(PreviewTimer <= 0)
 	{
-		MeshComponent->SetCollisionEnabled(defaultCollision);
+		MeshComponent->SetCollisionEnabled(DefaultCollisionType);
 		PreviewTimer = BasePreviewTime;
 		PreviewCopy->Destroy();
 		PreviewCopy = nullptr;
 	}
 
 
+}
+
+void APickupActor::SetThrowVector(FVector NewThrowVector)
+{
+	if (ThrowVector != NewThrowVector) {
+		ThrowVector = NewThrowVector;
+		PreviewTimer = 0; //force preview to reset when new throw values are given 
+	}
 }
 
 

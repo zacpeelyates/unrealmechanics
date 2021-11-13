@@ -23,6 +23,13 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 	void GetTargetPickup();
+	UPROPERTY(EditAnywhere)
+	FVector BaseThrowVector;
+	UPROPERTY(VisibleAnywhere)
+	FVector ThrowVector;
+	FVector PrevThrowVector;
+	float ThrowScale;
+
 
 public:	
 	// Called every frame
@@ -37,5 +44,7 @@ public:
 	void RequestPickup();
 	void RequestThrow();
 	void RequestRelease();
+	void ResetThrowVector();
+	void AddThrowVector(const FVector ThrowDelta);
 		
 };

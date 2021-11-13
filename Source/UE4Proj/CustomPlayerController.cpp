@@ -60,6 +60,10 @@ void ACustomPlayerController::SetupInputComponent()
 	InputComponent->BindAxis("Axis_Camera_Zoom", this, &ACustomPlayerController::DelegateCameraZoom);
 	InputComponent->BindAxis("Axis_Camera_Pitch", this, &ACustomPlayerController::DelegateCameraPitch);
 	InputComponent->BindAxis("Axis_Camera_Yaw", this, &ACustomPlayerController::DelegateCameraYaw);
+	//item axis
+	InputComponent->BindAxis("Axis_Item_Throw_Forward", this, &ACustomPlayerController::DelegateItemThrowForward);
+	InputComponent->BindAxis("Axis_Item_Throw_Right", this, &ACustomPlayerController::DelegateItemThrowRight);
+	InputComponent->BindAxis("Axis_Item_Throw_Up", this, &ACustomPlayerController::DelegateItemThrowUp);
 	//actions
 	//player actions
 	InputComponent->BindAction("Action_Sprint", IE_Pressed, this, &ACustomPlayerController::SprintBegin);
@@ -139,19 +143,34 @@ void ACustomPlayerController::DelegateCameraRollLeftBegin()
 	CameraMovement->RotateCamera(FRotator(0.0f, 0.0f, -MaxRoll));
 }
 
-void ACustomPlayerController::DelegateCameraRollLeftEnd()
-{
-	CameraMovement->ResetCameraLocation(true);
-}
-
 void ACustomPlayerController::DelegateCameraRollRightBegin()
 {
 	CameraMovement->RotateCamera(FRotator(0.0f, 0.0f, MaxRoll));
 }
 
+void ACustomPlayerController::DelegateCameraRollLeftEnd()
+{
+	CameraMovement->ResetCameraLocation(true);
+}
+
 void ACustomPlayerController::DelegateCameraRollRightEnd()
 {
 	CameraMovement->ResetCameraLocation(true);
+}
+
+void ACustomPlayerController::DelegateItemThrowForward(float value)
+{
+	ItemHolder->AddThrowVector(FVector(value, 0.0f, 0.0f));
+}
+
+void ACustomPlayerController::DelegateItemThrowRight(float value)
+{
+	ItemHolder->AddThrowVector(FVector(0.0f, value, 0.0f));
+}
+
+void ACustomPlayerController::DelegateItemThrowUp(float value)
+{
+	ItemHolder->AddThrowVector(FVector(0.0f, 0.0f, value));
 }
 
 void ACustomPlayerController::DelegateItemPickup()

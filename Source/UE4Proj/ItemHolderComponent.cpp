@@ -9,22 +9,19 @@ UItemHolderComponent::UItemHolderComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-	PickupRange = 200.0f;
+	PickupRange = 250.0f;
 	TargetPickup = nullptr;
 	bIsHolding = false;
 	PickupBox = CreateDefaultSubobject<UBoxComponent>(TEXT("PickupBoxComponent"));
-	PickupBox->InitBoxExtent(FVector(PickupRange));;
-
+	PickupBox->InitBoxExtent(FVector(PickupRange));
+	ThrowVector = BaseThrowVector;
+	PrevThrowVector = ThrowVector;
+	ThrowScale = 100.0f;
 }
 
-
-// Called when the game starts
 void UItemHolderComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
-	
 }
 
 
@@ -36,8 +33,11 @@ void UItemHolderComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	{
 		GetTargetPickup();
 	}
-
-
+	else if(TargetPickup != nullptr && ThrowVector != PrevThrowVector)
+	{
+		TargetPickup->SetThrowVector(ThrowVector);
+		PrevThrowVector = ThrowVector;
+	}
 }
 
 void UItemHolderComponent::RequestPickup()
@@ -47,6 +47,7 @@ void UItemHolderComponent::RequestPickup()
 		TargetPickup->Pickup(GetOwner());
 		bIsHolding = true;
 	}
+	ResetThrowVector();
 }
 
 void UItemHolderComponent::RequestThrow()
@@ -57,6 +58,7 @@ void UItemHolderComponent::RequestThrow()
 		TargetPickup = nullptr;
 		bIsHolding = false;
 	}
+	ResetThrowVector();
 }
 
 
@@ -67,6 +69,20 @@ void UItemHolderComponent::RequestRelease()
 		TargetPickup->Release();
 		TargetPickup = nullptr;
 		bIsHolding = false;
+	}
+	ResetThrowVector();
+}
+
+void UItemHolderComponent::ResetThrowVector()
+{
+	ThrowVector = BaseThrowVector;
+}
+
+void UItemHolderComponent::AddThrowVector(const FVector ThrowDelta)
+{
+	if (bIsHolding) 
+	{
+		ThrowVector += ThrowDelta * ThrowScale;
 	}
 }
 

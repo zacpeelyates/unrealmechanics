@@ -26,10 +26,13 @@ public:
 	void Release();
 	void Throw();
 	void Preview();
+	void SetThrowVector(FVector NewThrowVector);
 	bool bCanCopy;
 	bool bCanPickup;
 
 private:
+	UPROPERTY(EditAnywhere)
+	FVector ThrowVector;
 	UPROPERTY(EditAnywhere)
 	UMaterial* PreviewMaterial;
 	UPROPERTY(VisibleAnywhere)
@@ -41,7 +44,5 @@ private:
 	FVector PickupOffset;
 	float BasePreviewTime;
 	float PreviewTimer;
-	float ThrowZOffset;
-	float ThrowForce;
-	ECollisionEnabled::Type defaultCollision;
+	ECollisionEnabled::Type DefaultCollisionType;
 };
