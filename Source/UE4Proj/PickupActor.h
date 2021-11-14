@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/LineBatchComponent.h"
 #include "GameFramework/Actor.h"
 #include "PickupActor.generated.h"
+
 
 UCLASS()
 class UE4PROJ_API APickupActor : public AActor
@@ -29,6 +31,7 @@ public:
 	void SetThrowVector(FVector NewThrowVector);
 	bool bCanCopy;
 	bool bCanPickup;
+	FVector prevLocation;
 
 private:
 	UPROPERTY(EditAnywhere)
@@ -45,4 +48,6 @@ private:
 	float BasePreviewTime;
 	float PreviewTimer;
 	ECollisionEnabled::Type DefaultCollisionType;
+	ULineBatchComponent* LineBatchComponent;
+	
 };

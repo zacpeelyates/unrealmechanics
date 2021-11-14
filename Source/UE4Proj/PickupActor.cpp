@@ -2,6 +2,7 @@
 
 #include "PickupActor.h"
 
+
 // Sets default values
 APickupActor::APickupActor()
 {
@@ -20,6 +21,8 @@ APickupActor::APickupActor()
 	PreviewTimer = BasePreviewTime;
 	bCanCopy = true;
 	bCanPickup = true;
+	LineBatchComponent = CreateDefaultSubobject <ULineBatchComponent>(TEXT("LineBatchComponent"));
+
 }
 
 // Called when the game starts or when spawned
@@ -40,8 +43,8 @@ void APickupActor::Tick(float DeltaTime)
 		MeshComponent->AddLocalOffset(PickupOffset);
 		if(bCanCopy) Preview();
 	}
+	prevLocation = MeshComponent->GetComponentLocation();
 	PreviewTimer -= DeltaTime;
-	
 }
 void APickupActor::Pickup(AActor* HoldActor)
 {
@@ -83,6 +86,7 @@ void APickupActor::Preview()
 {
 	if (PreviewCopy == nullptr && bCanCopy)
 	{
+		//create and show preview copy
 		FActorSpawnParameters SpawnParameters;
 		SpawnParameters.Template = this;
 		const FVector L = GetActorLocation();
@@ -100,14 +104,25 @@ void APickupActor::Preview()
 		PreviewTimer = BasePreviewTime;
 		PreviewCopy->Throw();
 	}
-	
-	if(PreviewTimer <= 0)
+	else if(PreviewTimer <= 0)
 	{
+		//reset preview copy
 		MeshComponent->SetCollisionEnabled(DefaultCollisionType);
 		PreviewTimer = BasePreviewTime;
 		PreviewCopy->Destroy();
 		PreviewCopy = nullptr;
 	}
+	else if(PreviewCopy != nullptr)
+	{
+		//draw projectile path
+		int PointRed =  int(ThrowVector.X) %255;
+		int	PointGreen =  int(ThrowVector.Y) %255;
+		int PointBlue =  int(ThrowVector.Z) %255;
+
+
+		LineBatchComponent->DrawPoint(PreviewCopy->MeshComponent->GetComponentLocation(), FLinearColor(PointRed, PointGreen, PointBlue, 1), 5, 8, PreviewTimer);
+	}
+	
 
 
 }
