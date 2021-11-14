@@ -25,6 +25,10 @@ protected:
 	void GetTargetPickup();
 	UPROPERTY(EditAnywhere)
 	FVector BaseThrowVector;
+	UPROPERTY(VisibleAnywhere);
+	FVector MaxThrowVector;
+	UPROPERTY(VisibleAnywhere)
+	FVector MinThrowVector;
 	UPROPERTY(VisibleAnywhere)
 	FVector ThrowVector;
 	FVector PrevThrowVector;
@@ -46,5 +50,7 @@ public:
 	void RequestRelease();
 	void ResetThrowVector();
 	void AddThrowVector(const FVector ThrowDelta);
+
+	
 		
 };

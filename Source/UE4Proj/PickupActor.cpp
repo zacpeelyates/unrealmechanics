@@ -22,6 +22,7 @@ APickupActor::APickupActor()
 	bCanCopy = true;
 	bCanPickup = true;
 	LineBatchComponent = CreateDefaultSubobject <ULineBatchComponent>(TEXT("LineBatchComponent"));
+	ColorPoint = FVector(0.0f, 0.0f, 0.0f);
 
 }
 
@@ -78,9 +79,9 @@ void APickupActor::Throw()
 		const FVector ThrowU = Holder->GetActorUpVector() * ThrowVector.Z;
 		Release();
 		MeshComponent->AddImpulse(ThrowF + ThrowU + ThrowR);
-		
 	}
 }
+
 
 void APickupActor::Preview()
 {
@@ -114,18 +115,11 @@ void APickupActor::Preview()
 	}
 	else if(PreviewCopy != nullptr)
 	{
-		//draw projectile path
-		int PointRed =  int(ThrowVector.X) %255;
-		int	PointGreen =  int(ThrowVector.Y) %255;
-		int PointBlue =  int(ThrowVector.Z) %255;
-
-
-		LineBatchComponent->DrawPoint(PreviewCopy->MeshComponent->GetComponentLocation(), FLinearColor(PointRed, PointGreen, PointBlue, 1), 5, 8, PreviewTimer);
+		LineBatchComponent->DrawPoint(PreviewCopy->MeshComponent->GetComponentLocation(),FLinearColor(ColorPoint.X,ColorPoint.Y,ColorPoint.Z),5, 1, PreviewTimer);
 	}
-	
-
-
 }
+
+
 
 void APickupActor::SetThrowVector(FVector NewThrowVector)
 {
@@ -134,6 +128,12 @@ void APickupActor::SetThrowVector(FVector NewThrowVector)
 		PreviewTimer = 0; //force preview to reset when new throw values are given 
 	}
 }
+
+void APickupActor::SetColorPoint(FVector NewColor)
+{
+	ColorPoint = NewColor;
+}
+
 
 
 

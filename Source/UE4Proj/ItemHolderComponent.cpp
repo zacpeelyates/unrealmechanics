@@ -14,9 +14,11 @@ UItemHolderComponent::UItemHolderComponent()
 	bIsHolding = false;
 	PickupBox = CreateDefaultSubobject<UBoxComponent>(TEXT("PickupBoxComponent"));
 	PickupBox->InitBoxExtent(FVector(PickupRange));
+	ThrowScale = 100.0f;
 	ThrowVector = BaseThrowVector;
 	PrevThrowVector = ThrowVector;
-	ThrowScale = 100.0f;
+	MaxThrowVector = FVector(60000.0f, 25000.0f, 30000.0f);
+	MinThrowVector = FVector(0.0f, -MaxThrowVector.Y, 0.0f);
 }
 
 void UItemHolderComponent::BeginPlay()
@@ -37,8 +39,13 @@ void UItemHolderComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	{
 		TargetPickup->SetThrowVector(ThrowVector);
 		PrevThrowVector = ThrowVector;
+
+		FVector Color = (ThrowVector - MinThrowVector) / (MaxThrowVector - MinThrowVector).GetAbs();
+		TargetPickup->SetColorPoint(Color);
 	}
 }
+
+
 
 void UItemHolderComponent::RequestPickup()
 {
@@ -83,6 +90,10 @@ void UItemHolderComponent::AddThrowVector(const FVector ThrowDelta)
 	if (bIsHolding) 
 	{
 		ThrowVector += ThrowDelta * ThrowScale;
+
+		ThrowVector.X = FMath::Clamp(ThrowVector.X, MinThrowVector.X, MaxThrowVector.X);
+		ThrowVector.Y = FMath::Clamp(ThrowVector.Y, MinThrowVector.Y, MaxThrowVector.Y);
+		ThrowVector.Z = FMath::Clamp(ThrowVector.Z, MinThrowVector.Z, MaxThrowVector.Z);
 	}
 }
 
