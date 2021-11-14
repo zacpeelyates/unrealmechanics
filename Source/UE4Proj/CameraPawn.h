@@ -29,7 +29,7 @@ protected:
 
 	//Player Camera
 	UPROPERTY(VisibleAnywhere)
-		UCameraComponent* PlayerCamera;
+	UCameraComponent* PlayerCamera;
 
 	//CameraArm
 	UPROPERTY(VisibleAnywhere)
@@ -45,8 +45,13 @@ protected:
 	UPROPERTY(EditAnywhere)
 		UStaticMeshComponent* MeshComponent;
 
+	UPROPERTY(VisibleAnywhere)
+		UCameraComponent* FPCamera;
+
 
 public:
+
+
 	UPROPERTY(EditAnywhere)
 	USceneComponent* RootCompRef;
 
@@ -62,6 +67,10 @@ public:
 	//Getter functions
 	UFUNCTION(Category = "Getters")
 		UCameraComponent* GetCamera() const { return PlayerCamera; }
+
+	UFUNCTION(Category = "Getters")
+		UCameraComponent* GetFPCamera() const { return FPCamera; }
+
 	UFUNCTION(Category = "Getters")
 		USpringArmComponent* GetCameraArm() const { return CameraArm; }
 

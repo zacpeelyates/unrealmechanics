@@ -68,6 +68,7 @@ void ACustomPlayerController::SetupInputComponent()
 	//player actions
 	InputComponent->BindAction("Action_Sprint", IE_Pressed, this, &ACustomPlayerController::SprintBegin);
 	InputComponent->BindAction("Action_Sprint", IE_Released, this, &ACustomPlayerController::SprintEnd);
+	//InputComponent->BindAction("Action_Jump", IE_Pressed, this, &ACustomPlayerController::BeginJump);
 	//camera actions
 	InputComponent->BindAction("Action_Camera_Reset", IE_Pressed, this, &ACustomPlayerController::DelegateCameraReset);
 	InputComponent->BindAction("Action_Camera_FreeLook", IE_Pressed, this, &ACustomPlayerController::DelegateCameraFreeLookBegin);
@@ -76,12 +77,14 @@ void ACustomPlayerController::SetupInputComponent()
 	InputComponent->BindAction("Action_Camera_Roll_Left", IE_Released, this, &ACustomPlayerController::DelegateCameraRollLeftEnd);
 	InputComponent->BindAction("Action_Camera_Roll_Right", IE_Pressed, this, &ACustomPlayerController::DelegateCameraRollRightBegin);
 	InputComponent->BindAction("Action_Camera_Roll_Right", IE_Released, this, &ACustomPlayerController::DelegateCameraRollRightEnd);
+	InputComponent->BindAction("Action_Camera_Toggle", IE_Pressed, this, &ACustomPlayerController::DelegateToggleCamera);
 	//item actions
 	InputComponent->BindAction("Action_Item_Pickup", IE_Pressed, this, &ACustomPlayerController::DelegateItemPickup);
 	InputComponent->BindAction("Action_Item_Pickup", IE_Released, this, &ACustomPlayerController::DelegateItemRelease);
 	InputComponent->BindAction("Action_Item_Throw", IE_Pressed, this, &ACustomPlayerController::DelegateItemThrow);
 }
 
+// todo: move movement to its own class so that the controller class is just input bindings
 
 void ACustomPlayerController::SprintBegin()
 {
@@ -156,6 +159,11 @@ void ACustomPlayerController::DelegateCameraRollLeftEnd()
 void ACustomPlayerController::DelegateCameraRollRightEnd()
 {
 	CameraMovement->ResetCameraLocation(true);
+}
+
+void ACustomPlayerController::DelegateToggleCamera()
+{
+	CameraMovement->ToggleCamera();
 }
 
 void ACustomPlayerController::DelegateItemThrowForward(float value)

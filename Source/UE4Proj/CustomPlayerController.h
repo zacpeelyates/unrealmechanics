@@ -60,6 +60,7 @@ protected:
 	virtual void DelegateCameraRollRightBegin();
 	virtual void DelegateCameraRollLeftEnd();
 	virtual void DelegateCameraRollRightEnd();
+	virtual void DelegateToggleCamera();
 	//item axis
 	virtual void DelegateItemThrowForward(float value);
 	virtual void DelegateItemThrowRight(float value);

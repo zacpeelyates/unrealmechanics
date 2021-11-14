@@ -39,6 +39,9 @@ ACameraPawn::ACameraPawn()
 
 	//Attach Camera Movement Component
 	CameraMovementComponent = CreateDefaultSubobject<UCameraMovementActorComponent>(TEXT("CameraMovementComponent"));
+
+	//attach first person camera
+	FPCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;

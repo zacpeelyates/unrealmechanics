@@ -78,3 +78,8 @@ void UCameraMovementActorComponent::ResetCameraLocation(bool bKeepZoom)
 		CameraPawn->SetCameraArmLengthToDefault(bKeepZoom);
 	}
 }
+
+void UCameraMovementActorComponent::ToggleCamera()
+{
+	//todo: figure out how to do this lol
+}

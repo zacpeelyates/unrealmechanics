@@ -22,7 +22,8 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	//Can Camera move?
+
+
 		bool bCanCameraMove;
 	//Camera movement info
 		float DefaultCameraMovementSpeed;
@@ -66,6 +67,8 @@ public:
 	UFUNCTION(Category = "Camera Movement")
 		virtual void ResetCameraLocation(bool bKeepZoom = false);
 
+	//FPCamera controls
+	virtual void ToggleCamera();
 
 
 
