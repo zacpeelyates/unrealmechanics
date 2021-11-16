@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/LineBatchComponent.h"
 #include "GameFramework/Actor.h"
 #include "PickupActor.generated.h"
 

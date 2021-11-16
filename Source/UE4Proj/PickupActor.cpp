@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PickupActor.h"
+#include "Components/LineBatchComponent.h"
 
 
 // Sets default values
