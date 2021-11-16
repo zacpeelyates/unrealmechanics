@@ -54,7 +54,7 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	USceneComponent* RootCompRef;
-
+	UPROPERTY(EditAnywhere)
 	UCameraComponent* FPCameraRef;
 
 	UPROPERTY(EditAnywhere)
@@ -80,6 +80,7 @@ public:
 		float GetCurrentCameraArmLength();
 	UFUNCTION(Category = "Getters")
 		FRotator GetCurrentCameraRotation();
+
 
 	//Camera Arm Functions
 	UFUNCTION()

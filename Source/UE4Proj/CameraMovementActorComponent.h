@@ -36,11 +36,16 @@ protected:
 	FRotator DeltaRotation;
 	float MinDistance;
 	float MaxDistance;
+	bool bFirstPerson;
+	float MinPitch;
+	float MaxPitch;
 
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+
 
 	//Get Camera Pawn
 	UPROPERTY(EditAnywhere)
@@ -48,6 +53,11 @@ public:
 	//Get Player Controller
 	UPROPERTY(EditAnywhere)
 		APlayerController* PlayerController;
+
+	UPROPERTY()
+	UCameraComponent* FirstPersonCam;
+	UPROPERTY()
+	UCameraComponent* ThirdPersonCam;
 
 
 	UFUNCTION(Category = "Camera Direction")

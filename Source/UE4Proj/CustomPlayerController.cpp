@@ -135,7 +135,9 @@ void ACustomPlayerController::DelegateCameraZoom(float value)
 
 void ACustomPlayerController::DelegateCameraPitch(float value)
 {
+	
 	CameraMovement->RotateCamera(FRotator(value, 0.0f, 0.0f));
+
 }
 
 void ACustomPlayerController::DelegateCameraYaw(float value)
@@ -146,7 +148,7 @@ void ACustomPlayerController::DelegateCameraYaw(float value)
 	}
 	else
 	{
-		CameraPawn->RotateCharacter(FRotator(0.0f, value, 0.0f));
+		CameraPawn->RotateCharacter(FRotator(0, value, 0.0f));
 	}
 }
 

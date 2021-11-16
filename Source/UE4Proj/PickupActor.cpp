@@ -14,7 +14,6 @@ APickupActor::APickupActor()
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 	MeshComponent->SetupAttachment(RootComponent);
 	//Set Parameters 
-	PickupOffset = FVector(100.0f,0.0f,100.0f);
 	PreviewCopy = nullptr;
 	Holder = nullptr;
 	BasePreviewTime = 3.0f;

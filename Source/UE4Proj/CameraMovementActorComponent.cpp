@@ -14,11 +14,15 @@ UCameraMovementActorComponent::UCameraMovementActorComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 	PrimaryComponentTick.bStartWithTickEnabled = true;
 
+	bFirstPerson = false;
+
 	//Set Defaults
 	bCanCameraMove = true;
 	DefaultCameraMovementSpeed = 5.0f;
 	DefaultCameraRotationSpeed = 2.0f;
 	CameraMoveFactor = 1.0f;
+	MaxPitch = 80.0f;
+	MinPitch = -80.0f;
 }
 
 
@@ -28,6 +32,8 @@ void UCameraMovementActorComponent::BeginPlay()
 	Super::BeginPlay();
 	CameraPawn = Cast<ACameraPawn>(GetOwner());
 	PlayerController = Cast<APlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	FirstPersonCam = CameraPawn->GetFPCamera();
+	ThirdPersonCam = CameraPawn->GetCamera();
 }
 
 
@@ -35,6 +41,14 @@ void UCameraMovementActorComponent::BeginPlay()
 void UCameraMovementActorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	if(FirstPersonCam == nullptr)
+	{
+		FirstPersonCam = CameraPawn->GetFPCamera();
+	}
+	if(ThirdPersonCam == nullptr)
+	{
+		ThirdPersonCam = CameraPawn->GetFPCamera();
+	}
 }
 
 
@@ -55,19 +69,37 @@ FVector UCameraMovementActorComponent::GetCameraLocation()
 
 void UCameraMovementActorComponent::MoveCamera(FVector CameraDelta)
 {
-	if(bCanCameraMove)
+	if (!CameraDelta.IsZero() && bCanCameraMove) 
 	{
+
 		CameraDelta *= DefaultCameraMovementSpeed * CameraMoveFactor;
-		CameraPawn->GetCamera()->AddRelativeLocation(CameraDelta, true);
+		ThirdPersonCam->AddRelativeLocation(CameraDelta, true);
 	}
 }
 
+
 void UCameraMovementActorComponent::RotateCamera(FRotator CameraDelta)
 {
-	if (bCanCameraMove)
-	{
-		CameraDelta *= DefaultCameraRotationSpeed * CameraMoveFactor;
-		CameraPawn->AddArmRotation(CameraDelta);
+	if (!CameraDelta.IsZero()) {
+		if (!bFirstPerson)
+		{
+			if (bCanCameraMove)
+			{
+				CameraDelta *= DefaultCameraRotationSpeed * CameraMoveFactor;
+				CameraPawn->AddArmRotation(CameraDelta);
+			}
+		}
+		else
+		{
+			CameraDelta.Yaw = 0;
+			CameraDelta.Roll = 0;
+			//handle first person camera pitch (yaw is naturally controlled by rotation of player)
+			float TotalPitch = CameraDelta.Pitch + FirstPersonCam->GetRelativeRotation().Pitch;
+			if(TotalPitch < MaxPitch && TotalPitch > MinPitch)
+			{
+				FirstPersonCam->AddRelativeRotation(FQuat(CameraDelta));
+			}
+		}
 	}
 }
 
@@ -79,23 +111,24 @@ void UCameraMovementActorComponent::ResetCameraLocation(bool bKeepZoom)
 	}
 }
 
-bool bFirstPerson = false;
 
 void UCameraMovementActorComponent::ToggleCamera()
 {
-	UCameraComponent* FirstPersonCam = CameraPawn->GetFPCamera();
-	UCameraComponent* ThirdPersonCam = CameraPawn->GetCamera();
+	//wanted to do this using PlayerController SetViewTargetWithBlend but that wants the cameras to be in different objects
+	//my character has two cameras attached to it so we have to do the less fancy method of turning things off and on again
 
 	bFirstPerson = !bFirstPerson;
-
 	if(bFirstPerson)
 	{
+		
 		FirstPersonCam->Activate();
 		ThirdPersonCam->Deactivate();
+		
 	}
 	else
 	{
 		ThirdPersonCam->Activate();
 		FirstPersonCam->Deactivate();
+		FirstPersonCam->SetRelativeRotation(FRotator::ZeroRotator);
 	}
 }

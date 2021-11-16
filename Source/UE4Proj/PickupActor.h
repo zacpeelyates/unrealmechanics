@@ -45,6 +45,7 @@ private:
 	UStaticMeshComponent* MeshComponent;
 	UPROPERTY(VisibleAnywhere)
 	APickupActor* PreviewCopy;
+	UPROPERTY(EditAnywhere)
 	FVector PickupOffset;
 	float BasePreviewTime;
 	float PreviewTimer;
