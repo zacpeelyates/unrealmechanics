@@ -5,7 +5,6 @@
 #include "CameraMovementActorComponent.h"
 #include "Components/CapsuleComponent.h"
 
-
 // Sets default values
 ACameraPawn::ACameraPawn()
 {
@@ -42,6 +41,8 @@ ACameraPawn::ACameraPawn()
 
 	//attach first person camera
 	FPCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
+	FPCamera->SetupAttachment(RootComponent);
+	FPCameraRef = FPCamera;
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
@@ -56,6 +57,10 @@ void ACameraPawn::BeginPlay()
 	{
 		SetRootComponent(RootCompRef); //i dont know why rootcomponent is sometimes null in runtime and im desperate
 		//this actually worked help
+	}
+	if(FPCamera == nullptr)
+	{
+		FPCamera = FPCameraRef;
 	}
 	SetCameraArmLengthToDefault(false);
 }

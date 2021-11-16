@@ -79,7 +79,23 @@ void UCameraMovementActorComponent::ResetCameraLocation(bool bKeepZoom)
 	}
 }
 
+bool bFirstPerson = false;
+
 void UCameraMovementActorComponent::ToggleCamera()
 {
-	//todo: figure out how to do this lol
+	UCameraComponent* FirstPersonCam = CameraPawn->GetFPCamera();
+	UCameraComponent* ThirdPersonCam = CameraPawn->GetCamera();
+
+	bFirstPerson = !bFirstPerson;
+
+	if(bFirstPerson)
+	{
+		FirstPersonCam->Activate();
+		ThirdPersonCam->Deactivate();
+	}
+	else
+	{
+		ThirdPersonCam->Activate();
+		FirstPersonCam->Deactivate();
+	}
 }

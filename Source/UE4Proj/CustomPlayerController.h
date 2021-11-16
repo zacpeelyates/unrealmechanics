@@ -46,6 +46,8 @@ protected:
 	//movement actions
 	virtual void SprintBegin();
 	virtual void SprintEnd();
+	virtual void JumpBegin();
+	virtual void JumpEnd();
 	//camera axis
 	virtual void DelegateCameraZoom(float value);
 	virtual void DelegateCameraPan(float value);

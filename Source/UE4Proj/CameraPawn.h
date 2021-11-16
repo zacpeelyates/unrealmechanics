@@ -55,6 +55,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	USceneComponent* RootCompRef;
 
+	UCameraComponent* FPCameraRef;
+
 	UPROPERTY(EditAnywhere)
 		UItemHolderComponent* ItemHolderComponent;
 	// Called every frame

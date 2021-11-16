@@ -40,7 +40,7 @@ void UItemHolderComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 		TargetPickup->SetThrowVector(ThrowVector);
 		PrevThrowVector = ThrowVector;
 
-		FVector Color = (ThrowVector - MinThrowVector) / (MaxThrowVector - MinThrowVector).GetAbs();
+		const FVector Color = (ThrowVector - MinThrowVector) / (MaxThrowVector - MinThrowVector).GetAbs();
 		TargetPickup->SetColorPoint(Color);
 	}
 }

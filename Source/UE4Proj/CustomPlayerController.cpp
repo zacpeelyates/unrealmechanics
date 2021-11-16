@@ -68,7 +68,8 @@ void ACustomPlayerController::SetupInputComponent()
 	//player actions
 	InputComponent->BindAction("Action_Sprint", IE_Pressed, this, &ACustomPlayerController::SprintBegin);
 	InputComponent->BindAction("Action_Sprint", IE_Released, this, &ACustomPlayerController::SprintEnd);
-	//InputComponent->BindAction("Action_Jump", IE_Pressed, this, &ACustomPlayerController::BeginJump);
+	InputComponent->BindAction("Action_Jump", IE_Pressed, this, &ACustomPlayerController::JumpBegin);
+	InputComponent->BindAction("Action_Jump", IE_Released, this, &ACustomPlayerController::JumpEnd);
 	//camera actions
 	InputComponent->BindAction("Action_Camera_Reset", IE_Pressed, this, &ACustomPlayerController::DelegateCameraReset);
 	InputComponent->BindAction("Action_Camera_FreeLook", IE_Pressed, this, &ACustomPlayerController::DelegateCameraFreeLookBegin);
@@ -84,8 +85,7 @@ void ACustomPlayerController::SetupInputComponent()
 	InputComponent->BindAction("Action_Item_Throw", IE_Pressed, this, &ACustomPlayerController::DelegateItemThrow);
 }
 
-// todo: move movement to its own class so that the controller class is just input bindings
-
+// todo: move movement to its own class so that the controller class is only delegate methods
 void ACustomPlayerController::SprintBegin()
 {
 	bIsSprint = true;
@@ -94,6 +94,16 @@ void ACustomPlayerController::SprintBegin()
 void ACustomPlayerController::SprintEnd()
 {
 	bIsSprint = false;
+}
+
+void ACustomPlayerController::JumpBegin()
+{
+	CameraPawn->Jump();
+}
+
+void ACustomPlayerController::JumpEnd()
+{
+	CameraPawn->StopJumping();
 }
 
 void ACustomPlayerController::DelegateCameraFreeLookBegin()
