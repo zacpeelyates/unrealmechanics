@@ -68,6 +68,7 @@ void APickupActor::Release()
 		PreviewCopy->Destroy();
 		PreviewCopy = nullptr;
 	}
+	LineBatchComponent->Flush();
 }
 
 void APickupActor::Throw()
