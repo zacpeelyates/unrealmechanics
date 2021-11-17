@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "CustomPlayerController.h"
 #include "GameFramework/Actor.h"
-#include "Engine/TextureRenderTarget2D.h"
 #include "PortalManager.generated.h"
 
 
@@ -29,21 +28,18 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	UFUNCTION(BlueprintCallable)
-	void HandleTeleport(APortalActor* PortalActor, AActor* TeleportActor);
-	void Initialize();
-	void Update(float DeltaTime);
-	APortalActor* UpdateClosestPortal();
-	void UpdateView(APortalActor* PortalActor);
+	UPROPERTY(EditAnywhere)
+	UMaterial* BasePortalMaterial;
 
 private:
-	void CreateRenderTarget();
 	UPROPERTY(VisibleAnywhere)
 	ACustomPlayerController* PlayerController;
-	UPROPERTY(VisibleAnywhere)
-	USceneCaptureComponent2D* SceneCapture;
-	UPROPERTY(Transient)
-	UTextureRenderTarget2D* PortalTexture;
 	int32 ScreenX, ScreenY;
+
+	void HandleTeleport(APortalActor* PortalActor, AActor* TeleportActor);
+	APortalActor* GetClosestPortal();
+	void Init();
+
+	
 };
 

@@ -1,28 +1,58 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "kismet/GameplayStatics.h"
 #include "PortalActor.h"
+#include "kismet/GameplayStatics.h"
 #include "PortalUtils.h"
+#include "Components/SceneCaptureComponent2D.h"
 
 // Sets default values
 APortalActor::APortalActor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	bIsEnabled = false;
+	bIsEnabled = true;
+	
 }
 
 // Called when the game starts or when spawned
 void APortalActor::BeginPlay()
 {
+	if (PortalPlaneMesh == nullptr)
+	{
+		
+		TSet<UActorComponent*> Components =  GetComponents();
+		//get portal plane mesh (where the portal material will be applied)
+		for (UActorComponent* Comp : Components)
+		{
+
+			if (Comp->IsA(UStaticMeshComponent::StaticClass())) {
+				UStaticMeshComponent* Mesh = (UStaticMeshComponent*)Comp;
+				if (Mesh->GetStaticMesh()->GetName() == "Plane")
+				{
+					PortalPlaneMesh = Mesh;
+				}
+			}
+			else if(Comp->IsA(USceneCaptureComponent2D::StaticClass()))
+			{
+				USceneCaptureComponent2D* SCC2D = (USceneCaptureComponent2D*)Comp;
+				SceneCapture = SCC2D;
+			}
+		}
+	}
+
 	Super::BeginPlay();
-	
+	if(LinkedPortal == nullptr)
+	{
+		UE_LOG(LogTemp,Warning,TEXT("Possible Missing Linked Portal!"))
+	}
+
 }
 
 // Called every frame
 void APortalActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 }
 
 bool APortalActor::IsEnabled()
@@ -35,6 +65,21 @@ APortalActor* APortalActor::GetLinkedPortal()
 	return LinkedPortal;
 }
 
+UTextureRenderTarget2D* APortalActor::GetRenderTexture()
+{
+	return RenderTexture;
+}
+
+UStaticMeshComponent* APortalActor::GetPortalPlaneMesh()
+{
+	return PortalPlaneMesh;
+}
+
+USceneCaptureComponent2D* APortalActor::GetSceneCaptureComponent()
+{
+	return SceneCapture;
+}
+
 void APortalActor::SetEnabled(bool bIn)
 {
 	bIsEnabled = bIn;
@@ -43,6 +88,20 @@ void APortalActor::SetEnabled(bool bIn)
 void APortalActor::SetLinkedPortal(APortalActor* NewLinkedPortal)
 {
 	LinkedPortal = NewLinkedPortal;
+}
+
+void APortalActor::SetRenderTexture(UTextureRenderTarget2D* NewRenderTexture)
+{
+	RenderTexture = NewRenderTexture;
+	MaterialInstance->SetTextureParameterValue("RenderTextureParam", RenderTexture);
+	SceneCapture->TextureTarget = NewRenderTexture;
+
+}
+
+void APortalActor::SetMaterialInstance(UMaterialInstanceDynamic* NewMaterialInstanceDynamic)
+{
+	MaterialInstance = NewMaterialInstanceDynamic;
+	PortalPlaneMesh->GetStaticMesh()->SetMaterial(0, MaterialInstance);
 }
 
 
@@ -74,7 +133,7 @@ void APortalActor::TeleportActor(AActor* TargetActor)
 	TargetActor->SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
 	//rotation
 	TargetActor->SetActorRotation(PortalUtils::ConvertRotationToLocalSpace(TargetActor->GetActorRotation(), this, LinkedPortal));
-	//reapply velocity in portal direction TODO: Move this to it's own method!
+	//reapply velocity in portal direction
 	FVector OrientedVelocity;
 	OrientedVelocity.X = FVector::DotProduct(TeleportVelocity, GetActorForwardVector());
 	OrientedVelocity.Y = FVector::DotProduct(TeleportVelocity, GetActorRightVector());
@@ -96,11 +155,5 @@ bool APortalActor::IsInBounds(FVector Location, UBoxComponent* Bounds)
 	return FMath::Abs(FVector::DotProduct(Dir, Bounds->GetForwardVector())) <= BoundsExtent.X
 		&& FMath::Abs(FVector::DotProduct(Dir, Bounds->GetRightVector())) <= BoundsExtent.Y
 		&& FMath::Abs(FVector::DotProduct(Dir, Bounds->GetUpVector())) <= BoundsExtent.Z;
-}
-
-APortalManager* APortalActor::GetPortalManager()
-{
-	//this should be in a better place its very messy and breaks encapsulation but i just want it to work LOL
-	return Cast<APortalManager>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 }
 

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/TextureRenderTarget2D.h"
 #include "PortalManager.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/Actor.h"
@@ -28,28 +29,34 @@ public:
 	//getters
 	bool IsEnabled();
 	APortalActor* GetLinkedPortal();
+	UTextureRenderTarget2D* GetRenderTexture();
+	UStaticMeshComponent* GetPortalPlaneMesh();
+	USceneCaptureComponent2D* GetSceneCaptureComponent();
 	//setters
 	void SetEnabled(bool bIn);
-	UFUNCTION(BlueprintCallable)
 	void SetLinkedPortal(APortalActor* NewLinkedPortal);
+	void SetRenderTexture(UTextureRenderTarget2D* NewRenderTexture);
+	void SetMaterialInstance(UMaterialInstanceDynamic* NewMaterialInstanceDynamic);
+
 	//portal functions
-	UFUNCTION(BlueprintCallable)
 	bool IsInPortal(FVector TargetLocation, FVector PortalLocation, FVector PortalNormal);
 	void TeleportActor(AActor* TeleportActor);
-	//portal render texture functions (implemented in blueprint)
-	UFUNCTION(BlueprintImplementableEvent)
-	void SetRenderTexture(UTexture* RenderTexture);
-	UFUNCTION(BlueprintImplementableEvent)
-	void ClearRenderTexture();
-
 private:
 	bool bIsEnabled;
-	UPROPERTY(EditAnywhere);
+	UPROPERTY(EditAnywhere)
 	APortalActor* LinkedPortal;
 	FVector LastTargetPosition;
 	bool IsLastPositionInFrontOfPortal;
-	UFUNCTION(BlueprintCallable)
 	bool IsInBounds(FVector Location, UBoxComponent* Bounds);
-	UFUNCTION(BlueprintCallable)
-	APortalManager* GetPortalManager();
+
+	UPROPERTY(VisibleAnywhere)
+	UTextureRenderTarget2D* RenderTexture;
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent* PortalPlaneMesh;
+	UPROPERTY(VisibleAnywhere)
+	USceneCaptureComponent2D* SceneCapture;
+	UPROPERTY(VisibleAnywhere)
+	UMaterialInstanceDynamic* MaterialInstance;
+
+
 };
