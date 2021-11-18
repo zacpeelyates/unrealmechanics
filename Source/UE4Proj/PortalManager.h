@@ -39,7 +39,6 @@ private:
 	void HandleTeleport(APortalActor* PortalActor, AActor* TeleportActor);
 	APortalActor* GetClosestPortal();
 	void Init();
-
 	
 };
 

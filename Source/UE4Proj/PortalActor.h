@@ -37,6 +37,7 @@ public:
 	void SetLinkedPortal(APortalActor* NewLinkedPortal);
 	void SetRenderTexture(UTextureRenderTarget2D* NewRenderTexture);
 	void SetMaterialInstance(UMaterialInstanceDynamic* NewMaterialInstanceDynamic);
+	void UpdateSceneCaptureRenderTarget();
 
 	//portal functions
 	bool IsInPortal(FVector TargetLocation, FVector PortalLocation, FVector PortalNormal);
@@ -57,6 +58,8 @@ private:
 	USceneCaptureComponent2D* SceneCapture;
 	UPROPERTY(VisibleAnywhere)
 	UMaterialInstanceDynamic* MaterialInstance;
+
+
 
 
 };

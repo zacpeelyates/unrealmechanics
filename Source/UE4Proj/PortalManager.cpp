@@ -91,19 +91,8 @@ void APortalManager::Init()
 
 	for (TActorIterator<APortalActor>PortalIter(GetWorld()); PortalIter; ++PortalIter)
 	{
-		APortalActor* CurrentPortal = *PortalIter;
-		APortalActor* LinkedPortal = CurrentPortal->GetLinkedPortal();
-		if (!LinkedPortal->IsEnabled())
-		{
-			CurrentPortal->GetSceneCaptureComponent()->TextureTarget = LinkedPortal->GetRenderTexture();
-			LinkedPortal->GetSceneCaptureComponent()->TextureTarget = CurrentPortal->GetRenderTexture();
-			CurrentPortal->SetEnabled(true);
-			LinkedPortal->SetEnabled(true);
-		}
-
+		(*PortalIter)->UpdateSceneCaptureRenderTarget();
 	}
-
-
 }
 
 

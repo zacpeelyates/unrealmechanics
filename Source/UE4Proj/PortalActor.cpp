@@ -10,13 +10,14 @@ APortalActor::APortalActor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	bIsEnabled = true;
+	bIsEnabled = false;
 	
 }
 
 // Called when the game starts or when spawned
 void APortalActor::BeginPlay()
 {
+	Super::BeginPlay();
 	if (PortalPlaneMesh == nullptr)
 	{
 		
@@ -39,20 +40,21 @@ void APortalActor::BeginPlay()
 			}
 		}
 	}
-
-	Super::BeginPlay();
 	if(LinkedPortal == nullptr)
 	{
 		UE_LOG(LogTemp,Warning,TEXT("Possible Missing Linked Portal!"))
 	}
 
+	
 }
 
 // Called every frame
 void APortalActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	if (PortalPlaneMesh->GetMaterial(0) != MaterialInstance) {
+		PortalPlaneMesh->SetMaterial(0,MaterialInstance);
+	}
 }
 
 bool APortalActor::IsEnabled()
@@ -80,6 +82,12 @@ USceneCaptureComponent2D* APortalActor::GetSceneCaptureComponent()
 	return SceneCapture;
 }
 
+void APortalActor::UpdateSceneCaptureRenderTarget()
+{
+	SceneCapture->TextureTarget = GetLinkedPortal()->GetRenderTexture();
+	MaterialInstance->SetTextureParameterValue("RenderTextureParam",RenderTexture);
+}
+
 void APortalActor::SetEnabled(bool bIn)
 {
 	bIsEnabled = bIn;
@@ -93,8 +101,6 @@ void APortalActor::SetLinkedPortal(APortalActor* NewLinkedPortal)
 void APortalActor::SetRenderTexture(UTextureRenderTarget2D* NewRenderTexture)
 {
 	RenderTexture = NewRenderTexture;
-	MaterialInstance->SetTextureParameterValue("RenderTextureParam", RenderTexture);
-	SceneCapture->TextureTarget = NewRenderTexture;
 
 }
 
@@ -156,4 +162,3 @@ bool APortalActor::IsInBounds(FVector Location, UBoxComponent* Bounds)
 		&& FMath::Abs(FVector::DotProduct(Dir, Bounds->GetRightVector())) <= BoundsExtent.Y
 		&& FMath::Abs(FVector::DotProduct(Dir, Bounds->GetUpVector())) <= BoundsExtent.Z;
 }
-
