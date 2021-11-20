@@ -84,7 +84,12 @@ void ACameraPawn::RotateCharacter(FRotator Rot)
 	AddControllerRollInput(Rot.Roll);
 }
 
-
+UCameraComponent* ACameraPawn::GetActiveCamera() const
+{
+	if (FPCamera->IsActive()) return FPCamera;
+	if (PlayerCamera->IsActive()) return PlayerCamera;
+	return nullptr;
+}
 
 //Camera Function Definitions
 float ACameraPawn::GetCurrentCameraArmLength()

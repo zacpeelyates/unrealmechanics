@@ -30,14 +30,16 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	UPROPERTY(EditAnywhere)
 	UMaterial* BasePortalMaterial;
+	
 
 private:
-	UPROPERTY(VisibleAnywhere)
-	ACustomPlayerController* PlayerController;
+	
 	int32 ScreenX, ScreenY;
-
+	UPROPERTY(VisibleAnywhere)
+	ACustomPlayerController* PlayerCon;
 	void HandleTeleport(APortalActor* PortalActor, AActor* TeleportActor);
 	APortalActor* GetClosestPortal();
+	void UpdatePortalView(APortalActor* Portal);
 	void Init();
 	
 };

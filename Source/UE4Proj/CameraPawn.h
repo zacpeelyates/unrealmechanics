@@ -74,6 +74,9 @@ public:
 		UCameraComponent* GetFPCamera() const { return FPCamera; }
 
 	UFUNCTION(Category = "Getters")
+		UCameraComponent* GetActiveCamera() const;
+
+	UFUNCTION(Category = "Getters")
 		USpringArmComponent* GetCameraArm() const { return CameraArm; }
 
 	UFUNCTION(Category = "Getters")
@@ -93,6 +96,7 @@ public:
 	//Movement Functions
 	void MoveCharacter(FVector MoveVec);
 	void RotateCharacter(FRotator Rot);
+
 
 };
 

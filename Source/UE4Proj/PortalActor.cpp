@@ -107,7 +107,6 @@ void APortalActor::SetRenderTexture(UTextureRenderTarget2D* NewRenderTexture)
 void APortalActor::SetMaterialInstance(UMaterialInstanceDynamic* NewMaterialInstanceDynamic)
 {
 	MaterialInstance = NewMaterialInstanceDynamic;
-	PortalPlaneMesh->GetStaticMesh()->SetMaterial(0, MaterialInstance);
 }
 
 

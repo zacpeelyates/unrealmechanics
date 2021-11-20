@@ -2,13 +2,10 @@
 
 
 #include "PortalManager.h"
-
+#include "PortalUtils.h"
 #include "EngineUtils.h"
 #include "PortalActor.h"
-#include "PortalUtils.h"
-#include "Camera/CameraComponent.h"
 #include "Components/SceneCaptureComponent2D.h"
-#include "Engine/LocalPlayer.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -28,20 +25,26 @@ APortalManager::APortalManager()
 void APortalManager::BeginPlay()
 {
 	Super::BeginPlay();
-	PlayerController = Cast<ACustomPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	AttachToActor(PlayerController, FAttachmentTransformRules::SnapToTargetIncludingScale);
+	PlayerCon = Cast<ACustomPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	AttachToActor(PlayerCon, FAttachmentTransformRules::SnapToTargetIncludingScale);
 	//get viewsize
-	PlayerController->GetViewportSize(ScreenX, ScreenY);
-	Init();
+	PlayerCon->GetViewportSize(ScreenX, ScreenY);
+
 }
 
-
+bool hasInit = false;
 
 // Called every frame
 void APortalManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	APortalActor* PortalToUpdate = GetClosestPortal();
+	if(!hasInit)
+	{
+		Init();
+		hasInit = true;
+	}
+	UpdatePortalView(GetClosestPortal());
+
 	
 }
 
@@ -62,9 +65,9 @@ APortalActor* APortalManager::GetClosestPortal()
 	for (TActorIterator<APortalActor>PortalIter(GetWorld()); PortalIter; ++PortalIter)
 	{
 		APortalActor* CurrentPortal = *PortalIter;
-		FVector fLocation = PlayerController->GetFocalLocation();
-		FVector portalLocation = CurrentPortal->GetActorLocation();
-		const float CurrentDistance = FMath::Abs(FVector::Dist(fLocation, portalLocation));
+		FVector FocalLocation = PlayerCon->GetFocalLocation();
+		FVector PortalLocation = CurrentPortal->GetActorLocation();
+		const float CurrentDistance = FMath::Abs(FVector::Dist(FocalLocation, PortalLocation));
 		if(CurrentDistance < ClosestDistance)
 		{
 			ClosestDistance = CurrentDistance;
@@ -73,6 +76,36 @@ APortalActor* APortalManager::GetClosestPortal()
 	}
 	//return closest portal
 	return ClosestPortal;
+}
+
+void APortalManager::UpdatePortalView(APortalActor* Portal)
+{
+	APortalActor* LinkedPortal = Portal->GetLinkedPortal();
+	if (LinkedPortal != nullptr)
+	{
+		UCameraComponent* PlayerCam = PlayerCon->CameraPawn->GetActiveCamera();
+		USceneCaptureComponent2D* SceneCap = LinkedPortal->GetSceneCaptureComponent();
+		//apply new location to scenecapture
+		FVector NextCaptureLocation = PortalUtils::ConvertLocationToLocalSpace(PlayerCam->GetComponentLocation(), Portal, LinkedPortal);
+		SceneCap->SetWorldLocation(NextCaptureLocation);
+
+		FQuat LocalQuat = Portal->GetActorTransform().GetRotation().Inverse()* PlayerCam->GetComponentTransform().GetRotation();
+		FQuat NextWorldQuat = LocalQuat * LinkedPortal->GetActorTransform().GetRotation();
+		SceneCap->SetWorldRotation(NextWorldQuat);
+		FVector CorrectedLocation = SceneCap->GetRelativeLocation();
+		CorrectedLocation.X *= -1;
+		FRotator CorrectedRotation = SceneCap->GetRelativeRotation();
+		CorrectedRotation.Yaw += 180;
+
+
+		SceneCap->SetRelativeLocationAndRotation(CorrectedLocation, CorrectedRotation);
+
+		SceneCap->bOverride_CustomNearClippingPlane = true;
+		SceneCap->ClipPlaneNormal = LinkedPortal->GetActorForwardVector();
+		SceneCap->ClipPlaneBase = LinkedPortal->GetActorLocation() * SceneCap->ClipPlaneNormal;
+		SceneCap->CustomNearClippingPlane = FMath::Abs(FVector::Dist(PlayerCam->GetComponentLocation(), Portal->GetActorLocation()));
+		
+	}
 }
 
 void APortalManager::Init()
@@ -94,7 +127,6 @@ void APortalManager::Init()
 		(*PortalIter)->UpdateSceneCaptureRenderTarget();
 	}
 }
-
 
 
 
