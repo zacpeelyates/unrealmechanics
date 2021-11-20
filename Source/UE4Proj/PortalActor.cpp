@@ -118,7 +118,7 @@ bool APortalActor::IsInPortal(AActor* Target)
 {
 	FVector PortalToTarget = Target->GetActorLocation() - GetActorLocation();
 	PortalToTarget.Normalize();
-	if(FVector::DotProduct(GetActorForwardVector(), PortalToTarget) <= 0)
+	if(FVector::DotProduct(GetActorForwardVector(), PortalToTarget) >= 0)
 	{
 		IsLastPositionInFrontOfPortal = true;
 	}
@@ -158,6 +158,7 @@ void APortalActor::TeleportActor(AActor* TargetActor)
 
 	TargetActor->GetRootComponent()->ComponentVelocity = OrientedVelocity;
 	LinkedPortal->IsLastPositionInFrontOfPortal = false;
+	LinkedPortal->UpdateSceneCaptureRenderTarget();
 }
 
 bool APortalActor::IsInBounds(AActor* Target)

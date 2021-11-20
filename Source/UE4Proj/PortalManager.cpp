@@ -27,7 +27,6 @@ void APortalManager::BeginPlay()
 	Super::BeginPlay();
 	PlayerCon = Cast<ACustomPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	AttachToActor(PlayerCon, FAttachmentTransformRules::SnapToTargetIncludingScale);
-
 }
 
 bool hasInit = false;
@@ -38,6 +37,7 @@ void APortalManager::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if(!hasInit)
 	{
+		PlayerCon->GetViewportSize(ScreenX, ScreenY);
 		Init();
 		hasInit = true;
 	}
@@ -110,7 +110,7 @@ void APortalManager::UpdatePortalView(APortalActor* Portal)
 
 		SceneCap->bOverride_CustomNearClippingPlane = true;
 		SceneCap->ClipPlaneNormal = LinkedPortal->GetActorForwardVector();
-		SceneCap->ClipPlaneBase = LinkedPortal->GetActorLocation() * SceneCap->ClipPlaneNormal;
+		SceneCap->ClipPlaneBase = LinkedPortal->GetActorLocation() * SceneCap->ClipPlaneNormal * -1.5f;
 		SceneCap->CustomNearClippingPlane = FMath::Abs(FVector::Dist(PlayerCam->GetComponentLocation(), Portal->GetActorLocation()));
 		
 	}
@@ -125,7 +125,7 @@ void APortalManager::Init()
 		APortalActor* CurrentPortal = *PortalIter;
 		UMaterialInstanceDynamic* PortalMaterialInstance = UMaterialInstanceDynamic::Create(BasePortalMaterial, this);
 		UTextureRenderTarget2D* PortalTextureTarget = NewObject<UTextureRenderTarget2D>();
-		PortalTextureTarget->InitCustomFormat(1920, 1080, PF_A16B16G16R16, true);
+		PortalTextureTarget->InitCustomFormat(ScreenX, ScreenY, PF_A16B16G16R16, true);
 		CurrentPortal->SetMaterialInstance(PortalMaterialInstance);
 		CurrentPortal->SetRenderTexture(PortalTextureTarget);
 	}
