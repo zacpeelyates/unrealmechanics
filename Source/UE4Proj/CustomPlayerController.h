@@ -72,7 +72,6 @@ protected:
 	virtual void DelegateItemRelease();
 	virtual void DelegateItemThrow();
 
-	
 };
 
 

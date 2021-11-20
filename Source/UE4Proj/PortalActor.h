@@ -40,15 +40,16 @@ public:
 	void UpdateSceneCaptureRenderTarget();
 
 	//portal functions
-	bool IsInPortal(FVector TargetLocation, FVector PortalLocation, FVector PortalNormal);
+	bool IsInPortal(AActor* Target);
 	void TeleportActor(AActor* TeleportActor);
+	bool IsInBounds(AActor* Target);
+	AActor* GetTarget();
 private:
 	bool bIsEnabled;
 	UPROPERTY(EditAnywhere)
 	APortalActor* LinkedPortal;
-	FVector LastTargetPosition;
 	bool IsLastPositionInFrontOfPortal;
-	bool IsInBounds(FVector Location, UBoxComponent* Bounds);
+
 
 	UPROPERTY(VisibleAnywhere)
 	UTextureRenderTarget2D* RenderTexture;
@@ -58,6 +59,8 @@ private:
 	USceneCaptureComponent2D* SceneCapture;
 	UPROPERTY(VisibleAnywhere)
 	UMaterialInstanceDynamic* MaterialInstance;
+	UPROPERTY(VisibleAnywhere)
+	UBoxComponent* PortalBounds;
 
 
 

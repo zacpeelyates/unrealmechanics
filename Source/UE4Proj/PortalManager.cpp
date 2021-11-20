@@ -27,8 +27,6 @@ void APortalManager::BeginPlay()
 	Super::BeginPlay();
 	PlayerCon = Cast<ACustomPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	AttachToActor(PlayerCon, FAttachmentTransformRules::SnapToTargetIncludingScale);
-	//get viewsize
-	PlayerCon->GetViewportSize(ScreenX, ScreenY);
 
 }
 
@@ -43,7 +41,16 @@ void APortalManager::Tick(float DeltaTime)
 		Init();
 		hasInit = true;
 	}
-	UpdatePortalView(GetClosestPortal());
+	APortalActor* ClosestPortal = GetClosestPortal();
+	UpdatePortalView(ClosestPortal);
+	AActor* Target = ClosestPortal->GetTarget();
+	if (Target != nullptr) {
+		if (ClosestPortal->IsInBounds(Target) && ClosestPortal->IsInPortal(Target))
+		{
+			HandleTeleport(ClosestPortal, Target);
+		}
+	}
+	
 
 	
 }
@@ -54,6 +61,7 @@ void APortalManager::HandleTeleport(APortalActor* PortalActor, AActor* TeleportA
 	{
 		PortalActor->TeleportActor(TeleportActor);
 	}
+	
 }
 
 
@@ -96,8 +104,8 @@ void APortalManager::UpdatePortalView(APortalActor* Portal)
 		CorrectedLocation.X *= -1;
 		FRotator CorrectedRotation = SceneCap->GetRelativeRotation();
 		CorrectedRotation.Yaw += 180;
-
-
+		PlayerCon->GetViewportSize(ScreenX, ScreenY);
+		SceneCap->TextureTarget->ResizeTarget(ScreenX, ScreenY); //fixes textures breaking on window resize
 		SceneCap->SetRelativeLocationAndRotation(CorrectedLocation, CorrectedRotation);
 
 		SceneCap->bOverride_CustomNearClippingPlane = true;

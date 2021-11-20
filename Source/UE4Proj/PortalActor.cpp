@@ -9,6 +9,7 @@
 APortalActor::APortalActor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	IsLastPositionInFrontOfPortal = false;
 	PrimaryActorTick.bCanEverTick = true;
 	bIsEnabled = false;
 	
@@ -35,8 +36,11 @@ void APortalActor::BeginPlay()
 			}
 			else if(Comp->IsA(USceneCaptureComponent2D::StaticClass()))
 			{
-				USceneCaptureComponent2D* SCC2D = (USceneCaptureComponent2D*)Comp;
-				SceneCapture = SCC2D;
+				SceneCapture = (USceneCaptureComponent2D*)Comp;
+			}
+			else if(Comp->IsA(UBoxComponent::StaticClass()))
+			{
+				PortalBounds = (UBoxComponent*)Comp;
 			}
 		}
 	}
@@ -110,22 +114,27 @@ void APortalActor::SetMaterialInstance(UMaterialInstanceDynamic* NewMaterialInst
 }
 
 
-bool APortalActor::IsInPortal(FVector TargetLocation, FVector PortalLocation, FVector PortalNormal)
+bool APortalActor::IsInPortal(AActor* Target)
 {
-	//check values
-	FVector IntersectionLocation;
-	const FPlane PortalPlane = FPlane(PortalLocation, PortalNormal);
-	const bool IsTargetInFrontOfPortal = PortalPlane.PlaneDot(TargetLocation) >= 0;
-	const bool IsTargetIntersectingPortal = FMath::SegmentPlaneIntersection(LastTargetPosition, TargetLocation, PortalPlane, IntersectionLocation);
-	//store values
-	LastTargetPosition = TargetLocation;
-	IsLastPositionInFrontOfPortal = IsTargetInFrontOfPortal;
-
+	FVector PortalToTarget = Target->GetActorLocation() - GetActorLocation();
+	PortalToTarget.Normalize();
+	if(FVector::DotProduct(GetActorForwardVector(), PortalToTarget) <= 0)
+	{
+		IsLastPositionInFrontOfPortal = true;
+	}
+	else
+	{
+		if(IsLastPositionInFrontOfPortal)
+		{
+			return true;
+		}
+		IsLastPositionInFrontOfPortal = false;
+	}
 	//target has passed through portal if:
 	//its currently intersecting with portal
 	//it was in front of the portal last check
-	//it is now behind the portal (and needs to be teleported to the exit)
-	return IsTargetIntersectingPortal && IsLastPositionInFrontOfPortal && !IsTargetInFrontOfPortal;
+	//it is now behind the portal (and needs to be teleported to the exit this frame)
+	return false;
 }
 
 
@@ -148,16 +157,32 @@ void APortalActor::TeleportActor(AActor* TargetActor)
 		+ OrientedVelocity.Z * LinkedPortal->GetActorUpVector();
 
 	TargetActor->GetRootComponent()->ComponentVelocity = OrientedVelocity;
+	LinkedPortal->IsLastPositionInFrontOfPortal = false;
 }
 
-bool APortalActor::IsInBounds(FVector Location, UBoxComponent* Bounds)
+bool APortalActor::IsInBounds(AActor* Target)
 {
-	if (Bounds == nullptr) return false;
+	TArray<AActor*> ActorsInBounds;
+	PortalBounds->GetOverlappingActors(ActorsInBounds);
+	return  ActorsInBounds.Contains(Target);
+}
 
-	const FVector Dir = Location - Bounds->GetComponentLocation();
-	const FVector BoundsExtent = Bounds->GetScaledBoxExtent();
+AActor* APortalActor::GetTarget()
+{
 
-	return FMath::Abs(FVector::DotProduct(Dir, Bounds->GetForwardVector())) <= BoundsExtent.X
-		&& FMath::Abs(FVector::DotProduct(Dir, Bounds->GetRightVector())) <= BoundsExtent.Y
-		&& FMath::Abs(FVector::DotProduct(Dir, Bounds->GetUpVector())) <= BoundsExtent.Z;
+	float ClosestDistance = FLT_MAX;
+	TArray<AActor*> Actors;
+	PortalBounds->GetOverlappingActors(Actors);
+	if (Actors.Num() == 0) return nullptr;
+	AActor* Target = nullptr;
+	for (AActor* Actor : Actors)
+	{
+		const float CurrentDistance = FMath::Abs(FVector::Dist(GetActorTransform().GetLocation(), Actor->GetActorTransform().GetLocation()));
+		if (CurrentDistance < ClosestDistance)
+		{
+			ClosestDistance = CurrentDistance;
+			Target = Actor;
+		}
+	}
+	return Target;
 }
