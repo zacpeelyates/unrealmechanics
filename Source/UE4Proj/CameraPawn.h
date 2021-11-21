@@ -83,6 +83,8 @@ public:
 		float GetCurrentCameraArmLength();
 	UFUNCTION(Category = "Getters")
 		FRotator GetCurrentCameraRotation();
+	UFUNCTION(Category = "Getters")
+		UStaticMeshComponent* GetStaticMesh();
 
 
 	//Camera Arm Functions

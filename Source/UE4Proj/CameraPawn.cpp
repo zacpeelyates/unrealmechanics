@@ -103,6 +103,11 @@ FRotator ACameraPawn::GetCurrentCameraRotation()
 	return CameraArm->GetRelativeRotation();
 }
 
+UStaticMeshComponent* ACameraPawn::GetStaticMesh()
+{
+	return MeshComponent;
+}
+
 
 void ACameraPawn::AddArmLength(float DeltaArmLength)
 {

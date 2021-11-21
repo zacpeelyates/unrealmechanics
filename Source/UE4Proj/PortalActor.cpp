@@ -128,15 +128,16 @@ bool APortalActor::IsInPortal(AActor* Target)
 		if(IsLastPositionInFrontOfPortal)
 		{
 			IsLastPositionInFrontOfPortal = false;
+			LinkedPortal->IsLastPositionInFrontOfPortal = false;
 			return true;
 		}
-		IsLastPositionInFrontOfPortal = false;
 	}
+	return false;
 	//target has passed through portal if:
 	//its currently intersecting with portal
 	//it was in front of the portal last check
 	//it is now behind the portal (and needs to be teleported to the exit this frame)
-	return false;
+
 }
 
 

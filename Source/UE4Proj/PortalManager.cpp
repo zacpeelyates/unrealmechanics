@@ -73,9 +73,8 @@ APortalActor* APortalManager::GetClosestPortal()
 	for (TActorIterator<APortalActor>PortalIter(GetWorld()); PortalIter; ++PortalIter)
 	{
 		APortalActor* CurrentPortal = *PortalIter;
-		FVector FocalLocation = PlayerCon->GetFocalLocation();
 		FVector PortalLocation = CurrentPortal->GetActorLocation();
-		const float CurrentDistance = FMath::Abs(FVector::Dist(FocalLocation, PortalLocation));
+		const float CurrentDistance = FMath::Abs(FVector::Dist(PlayerCon->CameraPawn->GetActorLocation(), PortalLocation));
 		if(CurrentDistance < ClosestDistance)
 		{
 			ClosestDistance = CurrentDistance;
@@ -110,8 +109,8 @@ void APortalManager::UpdatePortalView(APortalActor* Portal)
 
 		SceneCap->bOverride_CustomNearClippingPlane = true;
 		SceneCap->ClipPlaneNormal = LinkedPortal->GetActorForwardVector();
-		SceneCap->ClipPlaneBase = LinkedPortal->GetActorLocation() * SceneCap->ClipPlaneNormal * -1.5f;
-		SceneCap->CustomNearClippingPlane = FMath::Abs(FVector::Dist(PlayerCam->GetComponentLocation(), Portal->GetActorLocation()));
+		SceneCap->ClipPlaneBase = LinkedPortal->GetActorLocation() * SceneCap->ClipPlaneNormal;
+		SceneCap->CustomNearClippingPlane = FMath::Abs(FVector::Dist(PlayerCam->GetComponentLocation(), Portal->GetActorLocation())) + 25.0f;
 		
 	}
 }

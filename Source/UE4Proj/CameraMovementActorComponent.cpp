@@ -131,4 +131,5 @@ void UCameraMovementActorComponent::ToggleCamera()
 		FirstPersonCam->Deactivate();
 		FirstPersonCam->SetRelativeRotation(FRotator::ZeroRotator);
 	}
+	CameraPawn->GetStaticMesh()->ToggleVisibility();
 }
