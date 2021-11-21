@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Engine/TextureRenderTarget2D.h"
-#include "PortalManager.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/Actor.h"
 #include "PortalActor.generated.h"

@@ -110,6 +110,7 @@ void APortalActor::SetRenderTexture(UTextureRenderTarget2D* NewRenderTexture)
 
 void APortalActor::SetMaterialInstance(UMaterialInstanceDynamic* NewMaterialInstanceDynamic)
 {
+
 	MaterialInstance = NewMaterialInstanceDynamic;
 }
 
@@ -118,7 +119,7 @@ bool APortalActor::IsInPortal(AActor* Target)
 {
 	FVector PortalToTarget = Target->GetActorLocation() - GetActorLocation();
 	PortalToTarget.Normalize();
-	if(FVector::DotProduct(GetActorForwardVector(), PortalToTarget) >= 0)
+	if(FVector::DotProduct(GetActorForwardVector(), PortalToTarget) <= 0)
 	{
 		IsLastPositionInFrontOfPortal = true;
 	}
@@ -126,6 +127,7 @@ bool APortalActor::IsInPortal(AActor* Target)
 	{
 		if(IsLastPositionInFrontOfPortal)
 		{
+			IsLastPositionInFrontOfPortal = false;
 			return true;
 		}
 		IsLastPositionInFrontOfPortal = false;
@@ -163,9 +165,11 @@ void APortalActor::TeleportActor(AActor* TargetActor)
 
 bool APortalActor::IsInBounds(AActor* Target)
 {
-	TArray<AActor*> ActorsInBounds;
-	PortalBounds->GetOverlappingActors(ActorsInBounds);
-	return  ActorsInBounds.Contains(Target);
+	UStaticMeshComponent* TargetMesh = (UStaticMeshComponent*)Target->GetComponentByClass(UStaticMeshComponent::StaticClass());
+	if (TargetMesh == nullptr) return false;
+	FVector Bounds = PortalBounds->GetScaledBoxExtent();
+	FVector MeshToPortal = (TargetMesh->GetComponentLocation() - PortalBounds->GetComponentLocation()).GetAbs();
+	return (MeshToPortal.X <= Bounds.X) && (MeshToPortal.Y <= Bounds.Y) && (MeshToPortal.Z <= Bounds.Z);
 }
 
 AActor* APortalActor::GetTarget()
