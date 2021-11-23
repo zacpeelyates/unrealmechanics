@@ -49,7 +49,6 @@ private:
 	APortalActor* LinkedPortal;
 	bool IsLastPositionInFrontOfPortal;
 
-
 	UPROPERTY(VisibleAnywhere)
 	UTextureRenderTarget2D* RenderTexture;
 	UPROPERTY(VisibleAnywhere)

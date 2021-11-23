@@ -26,7 +26,7 @@ ACameraPawn::ACameraPawn()
 	CameraArm->SetUsingAbsoluteRotation(false);
 	CameraArm->bEnableCameraLag = true;
 	CameraArm->bEnableCameraRotationLag = true;
-	CameraArm->bDoCollisionTest = true;
+	CameraArm->bDoCollisionTest = false; 
 	CameraArm->bInheritPitch = false;
 
 	//Create + Attach Camera

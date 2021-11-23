@@ -22,14 +22,12 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-
-
-		bool bCanCameraMove;
+	bool bCanCameraMove;
 	//Camera movement info
-		float DefaultCameraMovementSpeed;
-		float DefaultCameraRotationSpeed;
-		float CameraMoveFactor;
-		FVector CameraForwardDirection;
+	float DefaultCameraMovementSpeed;
+	float DefaultCameraRotationSpeed;
+	float CameraMoveFactor;
+	FVector CameraForwardDirection;
 
 	//Camera rotation info
 	float DeltaArm;

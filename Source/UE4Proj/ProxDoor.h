@@ -28,9 +28,9 @@ protected:
 	void OnOverlapBegin(class UPrimitiveComponent* OverlapC, class AActor* OtherA, class UPrimitiveComponent* OtherC, int32 OtherI, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
 	void OnOverlapEnd(class UPrimitiveComponent* OverlapC, class AActor* OtherA, class UPrimitiveComponent* OtherC, int32 OtherI);
-	UPROPERTY(EditAnywhere)
-	FVector MeshOffset;
-	float DirMultiplier;
+	bool bEnteredThisFrame;
+	UPROPERTY(VisibleAnywhere)
+	int Dir;
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

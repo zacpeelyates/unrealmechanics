@@ -9,8 +9,11 @@ ADoorActor::ADoorActor()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	SetRootComponent(CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent")));
-	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>((TEXT("MeshComponent")));	
-	MeshComponent->SetupAttachment(RootComponent);
+	DoorParent = CreateDefaultSubobject<USceneComponent>(TEXT("DoorComponent")); 
+	DoorMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>((TEXT("MeshComponent")));
+	HingeMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HingeComponent"));
+	HingeMeshComponent->SetupAttachment(DoorParent);
+	DoorMeshComponent->SetupAttachment(HingeMeshComponent);
 
 }
 
@@ -18,10 +21,11 @@ ADoorActor::ADoorActor()
 void ADoorActor::BeginPlay()
 {
 	Super::BeginPlay();
-	CloseTransform = MeshComponent->GetRelativeTransform();
+	CloseTransform = HingeMeshComponent->GetRelativeTransform();
 	PrimaryActorTick.bCanEverTick = true;
 	bIsOpen = false;
 	bIsTransitioning = false;
+
 }
 
 // Called every frame
@@ -30,8 +34,16 @@ void ADoorActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if (bIsTransitioning)
 	{
-		MeshComponent->SetRelativeRotation(FMath::Lerp(FQuat(MeshComponent->GetRelativeRotation()), GoalTransform.GetRotation(), LerpAlpha));
-		MeshComponent->SetRelativeLocation(FMath::Lerp(MeshComponent->GetRelativeLocation(),  GoalTransform.GetLocation(), LerpAlpha));
+		float T = 0.01f;
+		HingeMeshComponent->SetRelativeRotation(FMath::Lerp(FQuat(HingeMeshComponent->GetRelativeRotation()), GoalTransform.GetRotation(), LerpAlpha));
+		HingeMeshComponent->SetRelativeLocation(FMath::Lerp(HingeMeshComponent->GetRelativeLocation(),  GoalTransform.GetLocation(), LerpAlpha));
+		HingeMeshComponent->SetRelativeScale3D(FMath::Lerp(HingeMeshComponent->GetRelativeScale3D(), GoalTransform.GetScale3D(), LerpAlpha));
+		if(HingeMeshComponent->GetRelativeTransform().Equals(GoalTransform,T))
+		{
+			
+			bIsTransitioning = false;
+		}
 	}
+
 }
 

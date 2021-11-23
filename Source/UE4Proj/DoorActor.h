@@ -19,7 +19,13 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* MeshComponent;
+	UStaticMeshComponent* DoorMeshComponent;
+
+	UPROPERTY(EditAnywhere)
+		UStaticMeshComponent* HingeMeshComponent;
+
+	UPROPERTY(EditAnywhere)
+		USceneComponent* DoorParent;
 
 private:
 	
@@ -35,7 +41,7 @@ public:
 	bool bIsTransitioning;
 
 	UPROPERTY(EditAnywhere)
-	FTransform OpenTransform;
+		FTransform OpenTransform;
 
 	UPROPERTY(VisibleAnywhere)
 	FTransform CloseTransform;
