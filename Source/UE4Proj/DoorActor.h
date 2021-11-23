@@ -34,8 +34,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void Open(){};
-	virtual void Close(){};
+	virtual void Open();
+	virtual void Close();
 
 	bool bIsOpen;
 	bool bIsTransitioning;

@@ -47,3 +47,17 @@ void ADoorActor::Tick(float DeltaTime)
 
 }
 
+void ADoorActor::Open()
+{
+	GoalTransform = OpenTransform;
+	bIsOpen = false;
+	bIsTransitioning = true;
+}
+
+void ADoorActor::Close()
+{
+	GoalTransform = CloseTransform;
+	bIsOpen = false;
+	bIsTransitioning = true;
+}
+

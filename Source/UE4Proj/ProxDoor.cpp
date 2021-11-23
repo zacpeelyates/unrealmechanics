@@ -38,18 +38,15 @@ void AProxDoor::OnOverlapEnd(UPrimitiveComponent* OverlapC, AActor* OtherA, UPri
 
 void AProxDoor::Open()
 {
-	GoalTransform = OpenTransform;
+	Super::Open();
 	GoalTransform.SetRotation(FQuat(GoalTransform.Rotator()*Dir));
-	bIsOpen = true;
-	bIsTransitioning = true;
 }
 
 void AProxDoor::Close()
 {
-	GoalTransform = CloseTransform;
-	bIsOpen = false;
-	bIsTransitioning = true;
+	Super::Close();
 }
+
 
 void AProxDoor::Tick(float DeltaTime)
 {
