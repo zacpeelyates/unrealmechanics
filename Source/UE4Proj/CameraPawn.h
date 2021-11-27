@@ -5,10 +5,8 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Character.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "ItemHolderComponent.h"
 #include "CoreMinimal.h"
-#include "GameFramework/Pawn.h"
 #include "CameraPawn.generated.h"
 
 class UCameraMovementActorComponent;

@@ -18,7 +18,7 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* ButtonMesh;
-
+	virtual void Tick(float DeltaTime) override;
 protected:
 	virtual void BeginPlay() override;
 };

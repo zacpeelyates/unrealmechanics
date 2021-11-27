@@ -51,6 +51,7 @@ void UItemHolderComponent::RequestPickup()
 {
 	if(TargetPickup != nullptr && !bIsHolding)
 	{
+		TargetPickup->SetThrowVector(ThrowVector);
 		TargetPickup->Pickup(GetOwner());
 		bIsHolding = true;
 	}

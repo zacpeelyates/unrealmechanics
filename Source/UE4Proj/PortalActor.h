@@ -26,13 +26,11 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	//getters
-	bool IsEnabled();
 	APortalActor* GetLinkedPortal();
 	UTextureRenderTarget2D* GetRenderTexture();
 	UStaticMeshComponent* GetPortalPlaneMesh();
 	USceneCaptureComponent2D* GetSceneCaptureComponent();
 	//setters
-	void SetEnabled(bool bIn);
 	void SetLinkedPortal(APortalActor* NewLinkedPortal);
 	void SetRenderTexture(UTextureRenderTarget2D* NewRenderTexture);
 	void SetMaterialInstance(UMaterialInstanceDynamic* NewMaterialInstanceDynamic);
@@ -44,7 +42,6 @@ public:
 	bool IsInBounds(AActor* Target);
 	AActor* GetTarget();
 private:
-	bool bIsEnabled;
 	UPROPERTY(EditAnywhere)
 	APortalActor* LinkedPortal;
 	bool IsLastPositionInFrontOfPortal;

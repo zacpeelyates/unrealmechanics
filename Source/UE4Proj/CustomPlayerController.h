@@ -71,6 +71,9 @@ protected:
 	virtual void DelegateItemPickup();
 	virtual void DelegateItemRelease();
 	virtual void DelegateItemThrow();
+	//door actions
+	virtual void DelegateDoorInteractionBegin();
+	virtual void DelegateDoorInteractionEnd();
 
 };
 

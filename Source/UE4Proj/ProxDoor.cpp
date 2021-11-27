@@ -23,9 +23,7 @@ void AProxDoor::OnOverlapBegin(UPrimitiveComponent* OverlapC, AActor* OtherA, UP
 {
 	if (OtherA == this || OtherA == nullptr || OtherC == nullptr) return;
 	bEnteredThisFrame = true;
-	FVector OverlapToDoor =OtherA->GetActorLocation() - GetActorLocation();
-	OverlapToDoor.Normalize();
-	Dir = FMath::Sign(FVector::DotProduct(OverlapToDoor, GetActorRightVector()));
+	SetDir(OtherA->GetActorLocation());
 	Open();
 }
 
@@ -39,7 +37,6 @@ void AProxDoor::OnOverlapEnd(UPrimitiveComponent* OverlapC, AActor* OtherA, UPri
 void AProxDoor::Open()
 {
 	Super::Open();
-	GoalTransform.SetRotation(FQuat(GoalTransform.Rotator()*Dir));
 }
 
 void AProxDoor::Close()

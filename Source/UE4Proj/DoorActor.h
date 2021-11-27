@@ -36,6 +36,9 @@ public:
 
 	virtual void Open();
 	virtual void Close();
+	void SetDir(FVector OtherLocation);
+		
+	
 
 	bool bIsOpen;
 	bool bIsTransitioning;
@@ -49,8 +52,5 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	FTransform GoalTransform;
 
-	UPROPERTY(EditAnywhere)
-	float LerpAlpha;
-
-
+	int Dir;
 };

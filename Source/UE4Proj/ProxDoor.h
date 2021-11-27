@@ -24,18 +24,18 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* TriggerBox;
-	UFUNCTION()
-	void OnOverlapBegin(class UPrimitiveComponent* OverlapC, class AActor* OtherA, class UPrimitiveComponent* OtherC, int32 OtherI, bool bFromSweep, const FHitResult& SweepResult);
-	UFUNCTION()
-	void OnOverlapEnd(class UPrimitiveComponent* OverlapC, class AActor* OtherA, class UPrimitiveComponent* OtherC, int32 OtherI);
+	
 	bool bEnteredThisFrame;
-	UPROPERTY(VisibleAnywhere)
-	int Dir;
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void Open() override;
 	virtual void Close() override;
+
+	UFUNCTION()
+		virtual void OnOverlapBegin(class UPrimitiveComponent* OverlapC, class AActor* OtherA, class UPrimitiveComponent* OtherC, int32 OtherI, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION()
+		virtual void OnOverlapEnd(class UPrimitiveComponent* OverlapC, class AActor* OtherA, class UPrimitiveComponent* OtherC, int32 OtherI);
 	
 };

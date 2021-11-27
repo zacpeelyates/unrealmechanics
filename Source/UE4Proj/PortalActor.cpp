@@ -4,6 +4,7 @@
 #include "kismet/GameplayStatics.h"
 #include "PortalUtils.h"
 #include "Components/SceneCaptureComponent2D.h"
+#include "GameFramework/Character.h"
 
 // Sets default values
 APortalActor::APortalActor()
@@ -11,8 +12,6 @@ APortalActor::APortalActor()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	IsLastPositionInFrontOfPortal = false;
 	PrimaryActorTick.bCanEverTick = true;
-	bIsEnabled = false;
-	
 }
 
 // Called when the game starts or when spawned
@@ -21,10 +20,8 @@ void APortalActor::BeginPlay()
 	Super::BeginPlay();
 	if (PortalPlaneMesh == nullptr)
 	{
-		
-		TSet<UActorComponent*> Components =  GetComponents();
 		//get portal plane mesh (where the portal material will be applied)
-		for (UActorComponent* Comp : Components)
+		for (UActorComponent* Comp : this->GetComponents())
 		{
 
 			if (Comp->IsA(UStaticMeshComponent::StaticClass())) {
@@ -61,11 +58,6 @@ void APortalActor::Tick(float DeltaTime)
 	}
 }
 
-bool APortalActor::IsEnabled()
-{
-	return bIsEnabled;
-}
-
 APortalActor* APortalActor::GetLinkedPortal()
 {
 	return LinkedPortal;
@@ -92,11 +84,6 @@ void APortalActor::UpdateSceneCaptureRenderTarget()
 	MaterialInstance->SetTextureParameterValue("RenderTextureParam",RenderTexture);
 }
 
-void APortalActor::SetEnabled(bool bIn)
-{
-	bIsEnabled = bIn;
-}
-
 void APortalActor::SetLinkedPortal(APortalActor* NewLinkedPortal)
 {
 	LinkedPortal = NewLinkedPortal;
@@ -119,7 +106,7 @@ bool APortalActor::IsInPortal(AActor* Target)
 {
 	FVector PortalToTarget = Target->GetActorLocation() - GetActorLocation();
 	PortalToTarget.Normalize();
-	if(FVector::DotProduct(GetActorForwardVector(), PortalToTarget) <= 0)
+	if(FVector::DotProduct(GetActorForwardVector(), PortalToTarget) >= 0)
 	{
 		IsLastPositionInFrontOfPortal = true;
 	}
@@ -143,14 +130,21 @@ bool APortalActor::IsInPortal(AActor* Target)
 
 void APortalActor::TeleportActor(AActor* TargetActor)
 {
-	//store velocity
-	FVector TeleportVelocity = TargetActor->GetVelocity();
-	//location
-	FVector NewLocation = PortalUtils::ConvertLocationToLocalSpace(TargetActor->GetActorLocation(), this, LinkedPortal);
-	TargetActor->SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
-	//rotation
-	TargetActor->SetActorRotation(PortalUtils::ConvertRotationToLocalSpace(TargetActor->GetActorRotation(), this, LinkedPortal));
+	TargetActor->SetActorLocation(PortalUtils::ConvertLocationToLocalSpace(TargetActor->GetActorLocation(), this, LinkedPortal));
+	FRotator Rot =  PortalUtils::ConvertRotationToLocalSpace(TargetActor->GetActorRotation(), this, LinkedPortal);
+	Rot.Yaw += 180.0f;
+	TargetActor->SetActorRotation(Rot);
+	if(TargetActor->IsA(ACharacter::StaticClass()))
+	{
+		Rot.Pitch = 0.0f;
+		Rot.Roll = 0.0f;
+		const ACharacter* c = static_cast<ACharacter*>(TargetActor);
+		c->GetController()->SetControlRotation(Rot);
+	}
+	
+
 	//reapply velocity in portal direction
+	const FVector TeleportVelocity = TargetActor->GetVelocity();
 	FVector OrientedVelocity;
 	OrientedVelocity.X = FVector::DotProduct(TeleportVelocity, GetActorForwardVector());
 	OrientedVelocity.Y = FVector::DotProduct(TeleportVelocity, GetActorRightVector());
@@ -183,12 +177,15 @@ AActor* APortalActor::GetTarget()
 	AActor* Target = nullptr;
 	for (AActor* Actor : Actors)
 	{
-		const float CurrentDistance = FMath::Abs(FVector::Dist(GetActorTransform().GetLocation(), Actor->GetActorTransform().GetLocation()));
-		if (CurrentDistance < ClosestDistance)
-		{
-			ClosestDistance = CurrentDistance;
-			Target = Actor;
+		if (!Actor->IsA(StaticClass())) {
+			const float CurrentDistance = FMath::Abs(FVector::Dist(GetActorTransform().GetLocation(), Actor->GetActorTransform().GetLocation()));
+			if (CurrentDistance < ClosestDistance)
+			{
+				ClosestDistance = CurrentDistance;
+				Target = Actor;
+			}
 		}
+		
 	}
 	return Target;
 }

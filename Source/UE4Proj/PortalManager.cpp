@@ -2,11 +2,11 @@
 
 
 #include "PortalManager.h"
-#include "PortalUtils.h"
 #include "EngineUtils.h"
 #include "PortalActor.h"
 #include "Components/SceneCaptureComponent2D.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 
@@ -45,7 +45,7 @@ void APortalManager::Tick(float DeltaTime)
 	UpdatePortalView(ClosestPortal);
 	AActor* Target = ClosestPortal->GetTarget();
 	if (Target != nullptr) {
-		if (ClosestPortal->IsInBounds(Target) && ClosestPortal->IsInPortal(Target))
+		if (ClosestPortal->IsInPortal(Target) && ClosestPortal->IsInBounds(Target))
 		{
 			HandleTeleport(ClosestPortal, Target);
 		}
@@ -90,27 +90,19 @@ void APortalManager::UpdatePortalView(APortalActor* Portal)
 	APortalActor* LinkedPortal = Portal->GetLinkedPortal();
 	if (LinkedPortal != nullptr)
 	{
-		UCameraComponent* PlayerCam = PlayerCon->CameraPawn->GetActiveCamera();
-		USceneCaptureComponent2D* SceneCap = LinkedPortal->GetSceneCaptureComponent();
-		//apply new location to scenecapture
-		FVector NextCaptureLocation = PortalUtils::ConvertLocationToLocalSpace(PlayerCam->GetComponentLocation(), Portal, LinkedPortal);
-		SceneCap->SetWorldLocation(NextCaptureLocation);
+		const UCameraComponent* PlayerCam = PlayerCon->CameraPawn->GetActiveCamera();
+		USceneCaptureComponent2D* LinkedSceneCapture = LinkedPortal->GetSceneCaptureComponent();
 
-		FQuat LocalQuat = Portal->GetActorTransform().GetRotation().Inverse()* PlayerCam->GetComponentTransform().GetRotation();
-		FQuat NextWorldQuat = LocalQuat * LinkedPortal->GetActorTransform().GetRotation();
-		SceneCap->SetWorldRotation(NextWorldQuat);
-		FVector CorrectedLocation = SceneCap->GetRelativeLocation();
-		CorrectedLocation.X *= -1;
-		FRotator CorrectedRotation = SceneCap->GetRelativeRotation();
-		CorrectedRotation.Yaw += 180;
-		PlayerCon->GetViewportSize(ScreenX, ScreenY);
-		SceneCap->TextureTarget->ResizeTarget(ScreenX, ScreenY); //fixes textures breaking on window resize
-		SceneCap->SetRelativeLocationAndRotation(CorrectedLocation, CorrectedRotation);
+		FTransform ReversePortal = Portal->GetActorTransform();
+		FRotator Rot = ReversePortal.Rotator();
+		Rot.Yaw += 180;
+		ReversePortal.SetRotation(FQuat(Rot));
+		LinkedSceneCapture->SetRelativeTransform(UKismetMathLibrary::MakeRelativeTransform(PlayerCam->GetComponentTransform(),ReversePortal));
 
-		SceneCap->bOverride_CustomNearClippingPlane = true;
-		SceneCap->ClipPlaneNormal = LinkedPortal->GetActorForwardVector();
-		SceneCap->ClipPlaneBase = LinkedPortal->GetActorLocation() * SceneCap->ClipPlaneNormal;
-		SceneCap->CustomNearClippingPlane = FMath::Abs(FVector::Dist(PlayerCam->GetComponentLocation(), Portal->GetActorLocation())) + 25.0f;
+		LinkedSceneCapture->bOverride_CustomNearClippingPlane = true;
+		LinkedSceneCapture->ClipPlaneNormal = LinkedPortal->GetActorForwardVector();
+		LinkedSceneCapture->ClipPlaneBase = LinkedPortal->GetActorLocation();
+		LinkedSceneCapture->CustomNearClippingPlane = FMath::Abs(FVector::Dist(PlayerCam->GetComponentLocation(), Portal->GetActorLocation()) - ClipBuffer);
 		
 	}
 }
@@ -124,7 +116,9 @@ void APortalManager::Init()
 		APortalActor* CurrentPortal = *PortalIter;
 		UMaterialInstanceDynamic* PortalMaterialInstance = UMaterialInstanceDynamic::Create(BasePortalMaterial, this);
 		UTextureRenderTarget2D* PortalTextureTarget = NewObject<UTextureRenderTarget2D>();
-		PortalTextureTarget->InitCustomFormat(ScreenX, ScreenY, PF_A16B16G16R16, true);
+		PortalTextureTarget->RenderTargetFormat = RTF_RGBA16f;
+		PortalTextureTarget->Filter = TF_Bilinear;
+		PortalTextureTarget->InitAutoFormat(ScreenX, ScreenY);
 		CurrentPortal->SetMaterialInstance(PortalMaterialInstance);
 		CurrentPortal->SetRenderTexture(PortalTextureTarget);
 	}

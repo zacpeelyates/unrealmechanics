@@ -41,6 +41,8 @@ private:
 	APortalActor* GetClosestPortal();
 	void UpdatePortalView(APortalActor* Portal);
 	void Init();
+	UPROPERTY(EditAnywhere)
+	float ClipBuffer; 
 	
 };
 

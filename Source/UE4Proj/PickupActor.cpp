@@ -9,8 +9,6 @@ APickupActor::APickupActor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	//Set Root Component
-	SetRootComponent(CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent")));
 	//Set Mesh Component
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 	MeshComponent->SetupAttachment(RootComponent);
@@ -40,11 +38,8 @@ void APickupActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if(Holder != nullptr)
 	{
-		MeshComponent->SetRelativeLocationAndRotation(Holder->GetActorLocation(),Holder->GetActorRotation());
-		MeshComponent->AddLocalOffset(PickupOffset);
 		if(bCanCopy) Preview();
 	}
-	prevLocation = MeshComponent->GetComponentLocation();
 	PreviewTimer -= DeltaTime;
 }
 void APickupActor::Pickup(AActor* HoldActor)
@@ -54,6 +49,7 @@ void APickupActor::Pickup(AActor* HoldActor)
 		MeshComponent->SetSimulatePhysics(false);
 		Holder = HoldActor;
 		AttachToActor(Holder, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		AddActorLocalOffset(PickupOffset);
 	}
 }
 
@@ -88,21 +84,18 @@ void APickupActor::Preview()
 {
 	if (PreviewCopy == nullptr && bCanCopy)
 	{
-		//create and show preview copy
+		DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 		FActorSpawnParameters SpawnParameters;
 		SpawnParameters.Template = this;
-		const FVector L = GetActorLocation();
-		const FRotator R = GetActorRotation();
-		PreviewCopy = (APickupActor*)GetWorld()->SpawnActor(APickupActor::StaticClass(), &L, &R, SpawnParameters);
+		PreviewCopy = GetWorld()->SpawnActor<APickupActor>(SpawnParameters);
+		AttachToActor(Holder, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		AddActorLocalOffset(PickupOffset);
 		MeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		PreviewCopy->MeshComponent->SetCollisionEnabled(DefaultCollisionType);
-		PreviewCopy->MeshComponent->SetSimulatePhysics(false);
-		PreviewCopy->bCanPickup = false;
-		PreviewCopy->bCanCopy = false; //prevent copies from making copies which would cause the world to end or something
+		PreviewCopy->SetThrowVector(ThrowVector);
 		PreviewCopy->Holder = Holder;
-		PreviewCopy->AttachToActor(Holder, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-		PreviewCopy->MeshComponent->SetRelativeLocationAndRotation(Holder->GetActorLocation(),Holder->GetActorRotation());
-		PreviewCopy->MeshComponent->SetMaterial(0,PreviewMaterial);
+		PreviewCopy->bCanCopy = false;
+		PreviewCopy->bCanPickup = false;
+		PreviewCopy->MeshComponent->SetMaterial(0, PreviewMaterial);
 		PreviewTimer = BasePreviewTime;
 		PreviewCopy->Throw();
 	}
@@ -116,7 +109,7 @@ void APickupActor::Preview()
 	}
 	else if(PreviewCopy != nullptr)
 	{
-		LineBatchComponent->DrawPoint(PreviewCopy->MeshComponent->GetComponentLocation(),FLinearColor(ColorPoint.X,ColorPoint.Y,ColorPoint.Z),5, 1, PreviewTimer);
+	LineBatchComponent->DrawPoint(PreviewCopy->MeshComponent->GetComponentLocation(),FLinearColor(ColorPoint.X,ColorPoint.Y,ColorPoint.Z),5, 1, PreviewTimer);
 	}
 }
 
@@ -126,7 +119,8 @@ void APickupActor::SetThrowVector(FVector NewThrowVector)
 {
 	if (ThrowVector != NewThrowVector) {
 		ThrowVector = NewThrowVector;
-		PreviewTimer = 0; //force preview to reset when new throw values are given 
+		PreviewTimer = 0; //force preview to reset when new throw values are given
+		LineBatchComponent->Flush();
 	}
 }
 

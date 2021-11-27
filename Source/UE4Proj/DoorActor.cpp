@@ -14,6 +14,7 @@ ADoorActor::ADoorActor()
 	HingeMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HingeComponent"));
 	HingeMeshComponent->SetupAttachment(DoorParent);
 	DoorMeshComponent->SetupAttachment(HingeMeshComponent);
+	DoorParent->SetRelativeLocation(FVector(0));
 
 }
 
@@ -25,7 +26,7 @@ void ADoorActor::BeginPlay()
 	PrimaryActorTick.bCanEverTick = true;
 	bIsOpen = false;
 	bIsTransitioning = false;
-
+	Dir = 1;
 }
 
 // Called every frame
@@ -34,7 +35,8 @@ void ADoorActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if (bIsTransitioning)
 	{
-		float T = 0.01f;
+		const float T = 0.01f;
+		const float LerpAlpha = 0.02f;
 		HingeMeshComponent->SetRelativeRotation(FMath::Lerp(FQuat(HingeMeshComponent->GetRelativeRotation()), GoalTransform.GetRotation(), LerpAlpha));
 		HingeMeshComponent->SetRelativeLocation(FMath::Lerp(HingeMeshComponent->GetRelativeLocation(),  GoalTransform.GetLocation(), LerpAlpha));
 		HingeMeshComponent->SetRelativeScale3D(FMath::Lerp(HingeMeshComponent->GetRelativeScale3D(), GoalTransform.GetScale3D(), LerpAlpha));
@@ -50,7 +52,8 @@ void ADoorActor::Tick(float DeltaTime)
 void ADoorActor::Open()
 {
 	GoalTransform = OpenTransform;
-	bIsOpen = false;
+	GoalTransform.SetRotation(FQuat(GoalTransform.Rotator() * Dir));
+	bIsOpen = true;
 	bIsTransitioning = true;
 }
 
@@ -59,5 +62,12 @@ void ADoorActor::Close()
 	GoalTransform = CloseTransform;
 	bIsOpen = false;
 	bIsTransitioning = true;
+}
+
+void ADoorActor::SetDir(FVector OtherLocation)
+{
+	FVector OverlapToDoor = OtherLocation - GetActorLocation();
+	OverlapToDoor.Normalize();
+	Dir = FMath::Sign(FVector::DotProduct(OverlapToDoor,GetActorRightVector()));
 }
 

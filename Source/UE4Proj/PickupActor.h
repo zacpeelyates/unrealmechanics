@@ -27,14 +27,13 @@ public:
 	void Release();
 	void Throw();
 	void Preview();
-	void SetThrowVector(FVector NewThrowVector);
+	void SetThrowVector(FVector NewThrowcVector);
 	void SetColorPoint(FVector NewColor);
 	bool bCanCopy;
 	bool bCanPickup;
-	FVector prevLocation;
 
 private:
-	UPROPERTY(EditAnywhere)
+
 	FVector ThrowVector;
 	UPROPERTY(EditAnywhere)
 	UMaterial* PreviewMaterial;
@@ -49,6 +48,7 @@ private:
 	float BasePreviewTime;
 	float PreviewTimer;
 	ECollisionEnabled::Type DefaultCollisionType;
+	UPROPERTY(VisibleAnywhere)
 	ULineBatchComponent* LineBatchComponent;
 	UPROPERTY(VisibleAnywhere)
 	FVector ColorPoint;

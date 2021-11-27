@@ -6,6 +6,7 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "PortalManager.h"
+#include "DragDoor.h"
 
 
 
@@ -83,9 +84,11 @@ void ACustomPlayerController::SetupInputComponent()
 	InputComponent->BindAction("Action_Item_Pickup", IE_Pressed, this, &ACustomPlayerController::DelegateItemPickup);
 	InputComponent->BindAction("Action_Item_Pickup", IE_Released, this, &ACustomPlayerController::DelegateItemRelease);
 	InputComponent->BindAction("Action_Item_Throw", IE_Pressed, this, &ACustomPlayerController::DelegateItemThrow);
+	//door actions
+	InputComponent->BindAction("Action_Door_Interact", IE_Pressed, this, &ACustomPlayerController::DelegateDoorInteractionBegin);
+	InputComponent->BindAction("Action_Door_Interact", IE_Released, this, &ACustomPlayerController::DelegateDoorInteractionEnd);
 }
 
-// todo: move movement to its own class so that the controller class is only delegate methods
 void ACustomPlayerController::SprintBegin()
 {
 	bIsSprint = true;
@@ -207,6 +210,41 @@ void ACustomPlayerController::DelegateItemThrow()
 {
 	ItemHolder->RequestThrow();
 }
+
+
+AInteractDoor* Door;
+
+void ACustomPlayerController::DelegateDoorInteractionBegin()
+{
+	const UBoxComponent* InteractionBox = ItemHolder->PickupBox; //this should not be done like this i need to move the box into the player class 
+	TArray<AActor*> Actors;
+	InteractionBox->GetOverlappingActors(Actors);
+	for (AActor* Actor : Actors)
+	{
+		if(Actor->IsA(AInteractDoor::StaticClass()))
+		{
+			Door = Cast<AInteractDoor>(Actor);
+			Door->SetDir(CameraPawn->GetActorLocation());
+			Door->InteractionBegin();
+
+			if(Door->IsA(ADragDoor::StaticClass()))
+			{
+				ADragDoor* DragDoor = Cast<ADragDoor>(Door);
+				DragDoor->SetInteractor(CameraPawn);
+			}
+			break;
+		}
+	}
+}
+
+void ACustomPlayerController::DelegateDoorInteractionEnd()
+{
+	if(Door != nullptr)
+	{
+		Door->InteractionEnd();
+	}
+}
+
 
 void ACustomPlayerController::DelegateCameraReset()
 {

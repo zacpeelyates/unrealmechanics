@@ -12,13 +12,16 @@ FVector PortalUtils::ConvertLocationToLocalSpace(FVector Location, AActor* Curre
 	}
 
 	const FVector Direction = Location - CurrentSpace->GetActorLocation();
-	FVector NewDirection;
-	NewDirection.X = FVector::DotProduct(Direction, CurrentSpace->GetActorForwardVector());
-	NewDirection.Y = FVector::DotProduct(Direction, CurrentSpace->GetActorRightVector());
-	NewDirection.Z = FVector::DotProduct(Direction, CurrentSpace->GetActorUpVector());
-	NewDirection = NewDirection.X * TargetSpace->GetActorForwardVector()
-		+ NewDirection.Y * TargetSpace->GetActorRightVector()
-		+ NewDirection.Z * TargetSpace->GetActorUpVector();
+	FVector Dots;
+	Dots.X = FVector::DotProduct(Direction, CurrentSpace->GetActorForwardVector());
+	Dots.Y = FVector::DotProduct(Direction, CurrentSpace->GetActorRightVector());
+	Dots.Z = FVector::DotProduct(Direction, CurrentSpace->GetActorUpVector());
+
+	
+	FVector NewDirection = Dots.X * TargetSpace->GetActorForwardVector()
+	                           + Dots.Y * TargetSpace->GetActorRightVector()
+		                       + Dots.Z * TargetSpace->GetActorUpVector();
+	NewDirection.Y *= -1;
 	return TargetSpace->GetActorLocation() + NewDirection;
 }
 
@@ -28,5 +31,11 @@ FRotator PortalUtils::ConvertRotationToLocalSpace(FRotator Rotation, AActor* Cur
 	{
 		return FRotator::ZeroRotator;
 	}
-	return (TargetSpace->GetTransform().GetRotation() * CurrentSpace->GetTransform().GetRotation().Inverse() * FQuat(Rotation)).Rotator();
+
+	FQuat TargetRotation = TargetSpace->GetTransform().GetRotation();
+	FQuat InverseSpaceRotation = CurrentSpace->GetTransform().GetRotation().Inverse();
+	FQuat RotQuat = FQuat(Rotation);
+	FQuat FinalQuat = TargetRotation * InverseSpaceRotation * RotQuat;
+	FRotator ReturnRot = FinalQuat.Rotator();
+	return ReturnRot;
 }
