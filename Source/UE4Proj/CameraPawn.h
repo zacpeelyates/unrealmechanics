@@ -6,6 +6,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Character.h"
 #include "ItemHolderComponent.h"
+#include "BlinkComponent.h"
 #include "CoreMinimal.h"
 #include "CameraPawn.generated.h"
 
@@ -64,34 +65,23 @@ public:
 	FRotator DefaultCameraRotation;
 	UPROPERTY(EditAnywhere)
 	UCameraMovementActorComponent* CameraMovementComponent;
-	//Getter functions
-	UFUNCTION(Category = "Getters")
-		UCameraComponent* GetCamera() const { return PlayerCamera; }
+	UPROPERTY(EditAnywhere)
+	UBlinkComponent* BlinkComponent;
 
-	UFUNCTION(Category = "Getters")
-		UCameraComponent* GetFPCamera() const { return FPCamera; }
 
-	UFUNCTION(Category = "Getters")
-		UCameraComponent* GetActiveCamera() const;
-
-	UFUNCTION(Category = "Getters")
-		USpringArmComponent* GetCameraArm() const { return CameraArm; }
-
-	UFUNCTION(Category = "Getters")
-		float GetCurrentCameraArmLength();
-	UFUNCTION(Category = "Getters")
-		FRotator GetCurrentCameraRotation();
-	UFUNCTION(Category = "Getters")
-		UStaticMeshComponent* GetStaticMesh();
+	UCameraComponent* GetTPCamera() const;
+	UCameraComponent* GetFPCamera() const;
+	UCameraComponent* GetActiveCamera() const;
+	USpringArmComponent* GetCameraArm() const;
+	float GetCurrentCameraArmLength();
+	FRotator GetCurrentCameraRotation();
+	UStaticMeshComponent* GetStaticMesh();
 
 
 	//Camera Arm Functions
-	UFUNCTION()
-		virtual void AddArmLength(float DeltaArmLength);
-	UFUNCTION()
-		virtual void AddArmRotation(FRotator DeltaArmRotation);
-	UFUNCTION()
-		virtual void SetCameraArmLengthToDefault(bool bKeepZoom = false);
+	virtual void AddArmLength(float DeltaArmLength);
+	virtual void AddArmRotation(FRotator DeltaArmRotation);
+	virtual void SetCameraArmLengthToDefault(bool bKeepZoom = false);
 
 	//Movement Functions
 	void MoveCharacter(FVector MoveVec);

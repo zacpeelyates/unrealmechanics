@@ -145,7 +145,7 @@ void ACustomPlayerController::DelegateCameraPitch(float value)
 
 void ACustomPlayerController::DelegateCameraYaw(float value)
 {
-	if (bIsFreelook)
+	if (bIsFreelook && CameraPawn->GetActiveCamera() == CameraPawn->GetTPCamera())
 	{
 		CameraMovement->RotateCamera(FRotator(0.0f, value, 0.0f));
 	}

@@ -62,6 +62,7 @@ void ACameraPawn::BeginPlay()
 	{
 		FPCamera = FPCameraRef;
 	}
+	FPCamera->Deactivate();
 	SetCameraArmLengthToDefault(false);
 }
 
@@ -84,11 +85,26 @@ void ACameraPawn::RotateCharacter(FRotator Rot)
 	AddControllerRollInput(Rot.Roll);
 }
 
+UCameraComponent* ACameraPawn::GetTPCamera() const
+{
+	return PlayerCamera;
+}
+
+UCameraComponent* ACameraPawn::GetFPCamera() const
+{
+	return FPCamera;
+}
+
 UCameraComponent* ACameraPawn::GetActiveCamera() const
 {
 	if (FPCamera->IsActive()) return FPCamera;
 	if (PlayerCamera->IsActive()) return PlayerCamera;
 	return nullptr;
+}
+
+USpringArmComponent* ACameraPawn::GetCameraArm() const
+{
+	return CameraArm;
 }
 
 //Camera Function Definitions

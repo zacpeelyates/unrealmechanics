@@ -33,7 +33,7 @@ void UCameraMovementActorComponent::BeginPlay()
 	CameraPawn = Cast<ACameraPawn>(GetOwner());
 	PlayerController = Cast<APlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	FirstPersonCam = CameraPawn->GetFPCamera();
-	ThirdPersonCam = CameraPawn->GetCamera();
+	ThirdPersonCam = CameraPawn->GetTPCamera();
 }
 
 
