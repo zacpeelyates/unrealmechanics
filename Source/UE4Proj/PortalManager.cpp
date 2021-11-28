@@ -17,6 +17,7 @@ APortalManager::APortalManager()
 	SetRootComponent(CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent")));
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	//default values in-case getviewportsize fails in init()
 	ScreenX = 1920;
 	ScreenY = 1080;
 }
@@ -25,6 +26,7 @@ APortalManager::APortalManager()
 void APortalManager::BeginPlay()
 {
 	Super::BeginPlay();
+	//attach to playercontroller 
 	PlayerCon = Cast<ACustomPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	AttachToActor(PlayerCon, FAttachmentTransformRules::SnapToTargetIncludingScale);
 }
@@ -41,19 +43,26 @@ void APortalManager::Tick(float DeltaTime)
 		Init();
 		hasInit = true;
 	}
+	//Optimizations, fixed lag when there was a large amount of portals in the scene
+	ClearRenderTextures(); //clear all portals 
 	APortalActor* ClosestPortal = GetClosestPortal();
-	UpdatePortalView(ClosestPortal);
-	AActor* Target = ClosestPortal->GetTarget();
-	if (Target != nullptr) {
-		if (ClosestPortal->IsInPortal(Target) && ClosestPortal->IsInBounds(Target))
-		{
-			HandleTeleport(ClosestPortal, Target);
+	if (ClosestPortal != nullptr) {
+		UpdatePortalView(ClosestPortal); //activate closest portal and update the camera position for its render texdture
+
+		//get closest teleport object to portal 
+		AActor* Target = ClosestPortal->GetTarget();
+		if (Target != nullptr) {
+			//check target is in bounds and has crossed the portalplanemesh
+			if (ClosestPortal->IsInPortal(Target) && ClosestPortal->IsInBounds(Target))
+			{
+				//teleport actor
+				HandleTeleport(ClosestPortal, Target);
+			}
 		}
 	}
-	
-
-	
 }
+
+
 
 void APortalManager::HandleTeleport(APortalActor* PortalActor, AActor* TeleportActor)
 {
@@ -74,6 +83,8 @@ APortalActor* APortalManager::GetClosestPortal()
 	{
 		APortalActor* CurrentPortal = *PortalIter;
 		FVector PortalLocation = CurrentPortal->GetActorLocation();
+		//todo: find a clean way of not checking portals that are not on screen (recursive rendering through portals?)
+		//tried dotproduct of camera's angle and portal position but it breaks when looking at the portal from weird angles/positions
 		const float CurrentDistance = FMath::Abs(FVector::Dist(PlayerCon->CameraPawn->GetActorLocation(), PortalLocation));
 		if(CurrentDistance < ClosestDistance)
 		{
@@ -87,22 +98,28 @@ APortalActor* APortalManager::GetClosestPortal()
 
 void APortalManager::UpdatePortalView(APortalActor* Portal)
 {
+	Portal->GetSceneCaptureComponent()->Activate();
 	APortalActor* LinkedPortal = Portal->GetLinkedPortal();
 	if (LinkedPortal != nullptr)
 	{
+		
 		const UCameraComponent* PlayerCam = PlayerCon->CameraPawn->GetActiveCamera();
 		USceneCaptureComponent2D* LinkedSceneCapture = LinkedPortal->GetSceneCaptureComponent();
+		LinkedSceneCapture->Activate();
 
+		//get back-facing transform of the portal-to-enter
 		FTransform ReversePortal = Portal->GetActorTransform();
 		FRotator Rot = ReversePortal.Rotator();
 		Rot.Yaw += 180;
 		ReversePortal.SetRotation(FQuat(Rot));
+		//set linkedportal's scene capture component transform relative to linkedportal to be the same as the transform between the active camera and the back of the portal-to-enter
+		//this makes the portal effect work in 3d, instead of just keeping the camera at the exit of the portal, which would make the effect look flat  
 		LinkedSceneCapture->SetRelativeTransform(UKismetMathLibrary::MakeRelativeTransform(PlayerCam->GetComponentTransform(),ReversePortal));
-
-		LinkedSceneCapture->bOverride_CustomNearClippingPlane = true;
+		//having the camera be behind the portal, however, means we need to move it's clipping plane forward to make sure it isn't rendering objects between it and it's portal,
+		//we dont want to player to see those as it breaks the effect.
+		//these numbers probably need tweaking still but it's close to where i want it to be 
 		LinkedSceneCapture->ClipPlaneNormal = LinkedPortal->GetActorForwardVector();
-		LinkedSceneCapture->ClipPlaneBase = LinkedPortal->GetActorLocation();
-		LinkedSceneCapture->CustomNearClippingPlane = FMath::Abs(FVector::Dist(PlayerCam->GetComponentLocation(), Portal->GetActorLocation()) - ClipBuffer);
+		LinkedSceneCapture->ClipPlaneBase = LinkedPortal->GetActorLocation() - (LinkedSceneCapture->ClipPlaneNormal * ClipBuffer);
 		
 	}
 }
@@ -114,6 +131,7 @@ void APortalManager::Init()
 	for (TActorIterator<APortalActor>PortalIter(GetWorld()); PortalIter; ++PortalIter)
 	{
 		APortalActor* CurrentPortal = *PortalIter;
+		//create and set the material and associated render target for this portal 
 		UMaterialInstanceDynamic* PortalMaterialInstance = UMaterialInstanceDynamic::Create(BasePortalMaterial, this);
 		UTextureRenderTarget2D* PortalTextureTarget = NewObject<UTextureRenderTarget2D>();
 		PortalTextureTarget->RenderTargetFormat = RTF_RGBA16f;
@@ -125,7 +143,18 @@ void APortalManager::Init()
 
 	for (TActorIterator<APortalActor>PortalIter(GetWorld()); PortalIter; ++PortalIter)
 	{
+		//loop through again updating the render targets to each portals LinkedPortal's scenecapturecomponent (cant do in first loop as linkedportals may not be set up yet)
 		(*PortalIter)->UpdateSceneCaptureRenderTarget();
+	}
+}
+
+void APortalManager::ClearRenderTextures()
+{
+	for (TActorIterator<APortalActor>PortalIter(GetWorld()); PortalIter; ++PortalIter)
+	{
+		//turn off scenecapture components when not in use to prevent lag 
+		(*PortalIter)->GetSceneCaptureComponent()->Deactivate();
+		(*PortalIter)->GetRenderTexture()->UpdateResourceImmediate(true);
 	}
 }
 
