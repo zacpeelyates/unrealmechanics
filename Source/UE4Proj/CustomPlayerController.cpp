@@ -37,6 +37,7 @@ void ACustomPlayerController::BeginPlay()
 	CameraPawn = Cast<ACameraPawn>(GetPawn());
 	CameraMovement = CameraPawn->CameraMovementComponent;
 	ItemHolder = CameraPawn->ItemHolderComponent;
+	BlinkComponent = CameraPawn->BlinkComponent;
 
 }
 
@@ -87,6 +88,10 @@ void ACustomPlayerController::SetupInputComponent()
 	//door actions
 	InputComponent->BindAction("Action_Door_Interact", IE_Pressed, this, &ACustomPlayerController::DelegateDoorInteractionBegin);
 	InputComponent->BindAction("Action_Door_Interact", IE_Released, this, &ACustomPlayerController::DelegateDoorInteractionEnd);
+	//blink actions
+	InputComponent->BindAction("Action_Blink", IE_Pressed, this, &ACustomPlayerController::DelegateBlinkCast);
+	InputComponent->BindAction("Action_Blink", IE_Released, this, &ACustomPlayerController::DelegateBlinkRelease);
+
 }
 
 void ACustomPlayerController::SprintBegin()
@@ -211,7 +216,6 @@ void ACustomPlayerController::DelegateItemThrow()
 	ItemHolder->RequestThrow();
 }
 
-
 AInteractDoor* Door;
 
 void ACustomPlayerController::DelegateDoorInteractionBegin()
@@ -243,6 +247,19 @@ void ACustomPlayerController::DelegateDoorInteractionEnd()
 	{
 		Door->InteractionEnd();
 	}
+}
+
+void ACustomPlayerController::DelegateBlinkCast()
+{
+	UCameraComponent* BlinkCamera = CameraPawn->GetFPCamera();
+	if (CameraPawn->GetActiveCamera() == BlinkCamera) {
+		BlinkComponent->SetTrace(true);
+	}
+}
+
+void ACustomPlayerController::DelegateBlinkRelease()
+{
+	BlinkComponent->SetTrace(false);
 }
 
 

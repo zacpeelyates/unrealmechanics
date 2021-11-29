@@ -2,7 +2,6 @@
 
 #pragma once
 #include "CoreMinimal.h"
-#include "ItemHolderComponent.h"
 #include "CameraPawn.h"
 #include "CustomPlayerController.generated.h"
 
@@ -21,8 +20,10 @@ public:
 	UCameraMovementActorComponent* CameraMovement;
 	UPROPERTY(EditAnywhere)
 	UCharacterMovementComponent* PlayerMovement;
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	UItemHolderComponent* ItemHolder;
+	UPROPERTY(EditAnywhere)
+	UBlinkComponent* BlinkComponent;
 	APortalManager* GetPortalManager();
 
 protected:
@@ -74,6 +75,9 @@ protected:
 	//door actions
 	virtual void DelegateDoorInteractionBegin();
 	virtual void DelegateDoorInteractionEnd();
+	//blink actions
+	virtual void DelegateBlinkCast();
+	virtual void DelegateBlinkRelease();
 
 };
 

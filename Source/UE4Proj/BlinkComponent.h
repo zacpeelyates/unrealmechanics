@@ -7,6 +7,8 @@
 #include "BlinkComponent.generated.h"
 
 
+class ACameraPawn;
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UE4PROJ_API UBlinkComponent : public UActorComponent
 {
@@ -19,19 +21,32 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-	bool bIsBlinkPositionValid;
+	bool bIsBlinkLocationValid;
+	bool bPreview;
+	bool bTrace;
+	FVector BlinkLocation;
+	FVector BlinkStart;
+	FVector BlinkDir;
+	UPROPERTY(EditAnywhere)
+	int StepsPerFrame;
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	UPROPERTY(EditAnywhere)
-		float BlinkRange;
+		int BlinkRange;
+	UPROPERTY(VisibleAnywhere)
+		int Steps;
 	UPROPERTY(EditAnywhere)
 		UStaticMeshComponent* BlinkPreviewMesh;
 	UPROPERTY(EditAnywhere)
 		ULineBatchComponent* LineBatchComponent;
+	UPROPERTY(VisibleAnywhere)
+		ACameraPawn* Owner;
 
 	void Trace();
+	void Step();
+	void SetTrace(bool bNewTrace);
 
 		
 };

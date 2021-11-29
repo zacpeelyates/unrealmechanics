@@ -57,7 +57,7 @@ public:
 	UCameraComponent* FPCameraRef;
 
 	UPROPERTY(EditAnywhere)
-		UItemHolderComponent* ItemHolderComponent;
+	UItemHolderComponent* ItemHolderComponent;
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	//Default CameraArm

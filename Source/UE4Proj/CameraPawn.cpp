@@ -39,6 +39,9 @@ ACameraPawn::ACameraPawn()
 	//Attach Camera Movement Component
 	CameraMovementComponent = CreateDefaultSubobject<UCameraMovementActorComponent>(TEXT("CameraMovementComponent"));
 
+	//Attach Blink Component
+	BlinkComponent = CreateDefaultSubobject<UBlinkComponent>(TEXT("BlinkComponent"));
+
 	//attach first person camera
 	FPCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FPCamera->SetupAttachment(RootComponent);
