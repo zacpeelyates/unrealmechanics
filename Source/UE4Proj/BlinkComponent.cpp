@@ -53,7 +53,7 @@ void UBlinkComponent::Trace()
 	FVector StartLocation = BlinkStart;
 	FVector EndLocation = StartLocation + BlinkDir * BlinkRange;
 	FColor Color = FColor::Yellow;
-
+	bool bHasHit = false;
 	//horizontal trace
 	if(GetWorld()->LineTraceSingleByChannel(Hit, StartLocation, EndLocation, ECC_Visibility))
 	{
@@ -61,32 +61,61 @@ void UBlinkComponent::Trace()
 		{
 			Color = FColor::Orange;
 			EndLocation = Hit.ImpactPoint;
+			FVector SurfaceNormal = (Hit.ImpactNormal + Hit.ImpactPoint);
+			SurfaceNormal.Normalize();
+			bHasHit = true;
 			EndLocation -= BlinkDir * WallOffset;
-
+			
 		}
 	}
-	LineBatchComponent->DrawLine(StartLocation, EndLocation, Color, 1, 5.0f, 2.0f);
-
-	//vertical trace
-	StartLocation = EndLocation;
-	EndLocation = StartLocation + FVector::DownVector * BlinkRange/4;
-	if (GetWorld()->LineTraceSingleByChannel(Hit, StartLocation, EndLocation, ECC_Visibility))
+	LineBatchComponent->DrawLine(StartLocation, EndLocation, Color, 1, 5.0f);
+	if(bHasHit)
 	{
-		if (Hit.bBlockingHit)
+		//if horizontal trace hits a wall, we only need to do one vertical trace to check if there is valid floor by the wall
+		FVector VertEndLocation = EndLocation + FVector::DownVector * BlinkRange;
+		if(GetWorld()->LineTraceSingleByChannel(Hit,EndLocation,VertEndLocation,ECC_Visibility))
 		{
-			Color = FColor::Green;
-			bIsBlinkLocationValid = true;
-			EndLocation = Hit.ImpactPoint;
-			BlinkLocation = EndLocation + ZOffset;
-			BlinkPreviewMesh->SetWorldLocation(BlinkLocation);
-			BlinkPreviewMesh->SetVisibility(true);
+			if(Hit.bBlockingHit)
+			{
+				Color = FColor::Green;
+				VertEndLocation = Hit.ImpactPoint;
+				BlinkLocation = VertEndLocation + ZOffset;
+				bIsBlinkLocationValid = true;
+			}
 		}
-		else
+		LineBatchComponent->DrawLine(EndLocation, VertEndLocation, Color, 1, 5.0f);
+	}
+	else 
+	{
+		//vertical traces
+		for (int i = VerticalTraceSpacing; i <= BlinkRange; i += VerticalTraceSpacing)
 		{
-			Color = FColor::Red;
+			FVector VertStartLocation = StartLocation + BlinkDir * i;
+			FVector VertEndLocation = VertStartLocation + FVector::DownVector * i/10;
+
+			if (GetWorld()->LineTraceSingleByChannel(Hit, VertStartLocation, VertEndLocation, ECC_Visibility))
+			{
+				if (Hit.bBlockingHit)
+				{
+					Color = FColor::Green;
+					VertEndLocation = Hit.ImpactPoint;
+					BlinkLocation = VertEndLocation + ZOffset;
+					bIsBlinkLocationValid = true;
+				}
+				else
+				{
+					Color = FColor::Red;
+				}
+			}
+			LineBatchComponent->DrawLine(VertStartLocation, VertEndLocation, Color, 1, 5.0f);
 		}
 	}
-	LineBatchComponent->DrawLine(StartLocation, EndLocation, Color, 1, 5.0f, 0);
+	if(bIsBlinkLocationValid)
+	{
+		BlinkPreviewMesh->SetWorldLocation(BlinkLocation);
+		BlinkPreviewMesh->SetVisibility(true);
+	}
+
 }
 
 void UBlinkComponent::RequestTeleport()

@@ -42,7 +42,8 @@ public:
 		float ZOffset;
 	UPROPERTY(EditAnywhere)
 		float WallOffset;
-
+	UPROPERTY(EditAnywhere)
+		int VerticalTraceSpacing; 
 
 	void Trace();
 	void RequestTeleport();
