@@ -91,7 +91,7 @@ void UBlinkComponent::Trace()
 		for (int i = VerticalTraceSpacing; i <= BlinkRange; i += VerticalTraceSpacing)
 		{
 			FVector VertStartLocation = StartLocation + BlinkDir * i;
-			FVector VertEndLocation = VertStartLocation + FVector::DownVector * i/10;
+			FVector VertEndLocation = VertStartLocation + FVector::DownVector * i/VerticalTraceDivisor;
 
 			if (GetWorld()->LineTraceSingleByChannel(Hit, VertStartLocation, VertEndLocation, ECC_Visibility))
 			{
