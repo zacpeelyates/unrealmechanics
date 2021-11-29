@@ -16,7 +16,6 @@ AProxDoor::AProxDoor() : Super()
 void AProxDoor::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 void AProxDoor::OnOverlapBegin(UPrimitiveComponent* OverlapC, AActor* OtherA, UPrimitiveComponent* OtherC,int32 OtherI, bool bFromSweep, const FHitResult& SweepResult)
@@ -30,7 +29,11 @@ void AProxDoor::OnOverlapBegin(UPrimitiveComponent* OverlapC, AActor* OtherA, UP
 void AProxDoor::OnOverlapEnd(UPrimitiveComponent* OverlapC, AActor* OtherA, UPrimitiveComponent* OtherC, int32 OtherI)
 {
 	if (OtherA == this || OtherA == nullptr || OtherC == nullptr || bEnteredThisFrame) return;
-	Close();
+	TArray<AActor*> Actors;
+	GetOverlappingActors(Actors);
+	if (Actors.Num() == BaseOverlaps) {
+		Close();
+	}
 }
 
 
@@ -44,9 +47,17 @@ void AProxDoor::Close()
 	Super::Close();
 }
 
+bool bIsFirstTick = true;
 
 void AProxDoor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	bEnteredThisFrame = false;
+	if(bIsFirstTick)
+	{
+		bIsFirstTick = false;
+		TArray<AActor*> Actors;
+		GetOverlappingActors(Actors);
+		BaseOverlaps = Actors.Num();
+	}
 }

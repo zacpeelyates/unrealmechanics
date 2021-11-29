@@ -24,6 +24,7 @@ void AButtonDoor::BeginPlay()
 {
 	Super::BeginPlay();
 	Dir = 1; //not used in this class, set to 1 to ensure no unintended behaviour
+	
 }
 
 

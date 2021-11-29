@@ -24,7 +24,7 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* TriggerBox;
-	
+	int BaseOverlaps;
 	bool bEnteredThisFrame;
 public:
 	// Called every frame
