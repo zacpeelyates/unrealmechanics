@@ -22,30 +22,29 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 	bool bIsBlinkLocationValid;
-	bool bPreview;
 	bool bTrace;
 	FVector BlinkLocation;
 	FVector BlinkStart;
 	FVector BlinkDir;
-	UPROPERTY(EditAnywhere)
-	int StepsPerFrame;
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	UPROPERTY(EditAnywhere)
 		int BlinkRange;
-	UPROPERTY(VisibleAnywhere)
-		int Steps;
 	UPROPERTY(EditAnywhere)
-		UStaticMeshComponent* BlinkCheckMesh;
+		UStaticMeshComponent* BlinkPreviewMesh;
 	UPROPERTY(EditAnywhere)
 		ULineBatchComponent* LineBatchComponent;
 	UPROPERTY(VisibleAnywhere)
 		ACameraPawn* Owner;
+	UPROPERTY(EditAnywhere)
+		float ZOffset;
+	UPROPERTY(EditAnywhere)
+		float WallOffset;
+
 
 	void Trace();
-	void Step();
 	void RequestTeleport();
 	void SetTrace(bool bNewTrace);
 
