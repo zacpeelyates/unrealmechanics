@@ -259,6 +259,7 @@ void ACustomPlayerController::DelegateBlinkCast()
 
 void ACustomPlayerController::DelegateBlinkRelease()
 {
+	BlinkComponent->RequestTeleport();
 	BlinkComponent->SetTrace(false);
 }
 

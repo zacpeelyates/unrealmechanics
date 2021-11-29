@@ -11,7 +11,7 @@ UBlinkComponent::UBlinkComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-	BlinkPreviewMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
+	BlinkCheckMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 	LineBatchComponent = CreateDefaultSubobject<ULineBatchComponent>(TEXT("LineBatchComponent"));
 	// ...
 }
@@ -24,11 +24,10 @@ void UBlinkComponent::BeginPlay()
 	bIsBlinkLocationValid = false;
 	bPreview = false;
 	bTrace = false;
-	BlinkPreviewMesh->SetVisibility(false);
+	BlinkCheckMesh->SetVisibility(false);
 	Owner = Cast<ACameraPawn>(GetOwner());
+
 }
-
-
 
 
 
@@ -54,6 +53,7 @@ void UBlinkComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 void UBlinkComponent::Trace()
 {
+	bIsBlinkLocationValid = false;
 	LineBatchComponent->Flush();
 	BlinkStart = Owner->GetActorLocation();
 	BlinkDir = FVector(Owner->GetActiveCamera()->GetForwardVector());
@@ -76,13 +76,13 @@ void UBlinkComponent::Trace()
 
 void UBlinkComponent::Step()
 {
-	BlinkPreviewMesh->SetVisibility(true);
+	BlinkCheckMesh->SetVisibility(true);
 	if(Steps <= 0)
 	{
 		//check ground
 		FColor Color;
 		FHitResult Hit;
-		FVector StartLocation = BlinkPreviewMesh->GetComponentLocation();
+		FVector StartLocation = BlinkCheckMesh->GetComponentLocation();
 		FVector EndLocation = StartLocation + BlinkRange * FVector::DownVector;
 		if (GetWorld()->LineTraceSingleByChannel(Hit, StartLocation, EndLocation, ECC_Visibility))
 		{
@@ -90,7 +90,11 @@ void UBlinkComponent::Step()
 			{
 				Color = FColor::Green;
 				bIsBlinkLocationValid = true;
+				EndLocation = Hit.ImpactPoint;
 				BlinkLocation = EndLocation;
+				BlinkLocation.Z += 25.0f;
+				BlinkCheckMesh->SetWorldLocation(BlinkLocation);
+				
 			}
 			else
 			{
@@ -101,12 +105,10 @@ void UBlinkComponent::Step()
 		LineBatchComponent->DrawLine(StartLocation, EndLocation, Color, 1, 5.0f, 2.0f);
 		bPreview = false;
 		Steps = BlinkRange;
-		BlinkPreviewMesh->SetVisibility(false);
 	}
-	if (Steps == BlinkRange) BlinkPreviewMesh->SetWorldLocation(BlinkStart);
 	Steps-= StepsPerFrame;
 	FHitResult OutResult; 
-	BlinkPreviewMesh->AddWorldOffset(BlinkDir*StepsPerFrame,true,&OutResult);
+	BlinkCheckMesh->AddWorldOffset(BlinkDir*StepsPerFrame,true,&OutResult);
 	if(OutResult.bBlockingHit)
 	{
 		Steps = 0;
@@ -114,8 +116,15 @@ void UBlinkComponent::Step()
 
 }
 
+void UBlinkComponent::RequestTeleport()
+{
+	Owner->SetActorLocation(BlinkLocation);
+}
+
 void UBlinkComponent::SetTrace(bool bNewTrace)
 {
 	bTrace = bNewTrace;
+	BlinkStart = Owner->GetActorLocation();
+	BlinkCheckMesh->SetWorldLocation(BlinkStart);
 }
 

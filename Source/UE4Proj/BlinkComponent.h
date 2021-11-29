@@ -38,7 +38,7 @@ public:
 	UPROPERTY(VisibleAnywhere)
 		int Steps;
 	UPROPERTY(EditAnywhere)
-		UStaticMeshComponent* BlinkPreviewMesh;
+		UStaticMeshComponent* BlinkCheckMesh;
 	UPROPERTY(EditAnywhere)
 		ULineBatchComponent* LineBatchComponent;
 	UPROPERTY(VisibleAnywhere)
@@ -46,6 +46,7 @@ public:
 
 	void Trace();
 	void Step();
+	void RequestTeleport();
 	void SetTrace(bool bNewTrace);
 
 		
