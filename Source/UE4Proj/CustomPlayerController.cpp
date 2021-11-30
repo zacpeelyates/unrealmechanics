@@ -81,6 +81,7 @@ void ACustomPlayerController::SetupInputComponent()
 	InputComponent->BindAction("Action_Camera_Roll_Right", IE_Pressed, this, &ACustomPlayerController::DelegateCameraRollRightBegin);
 	InputComponent->BindAction("Action_Camera_Roll_Right", IE_Released, this, &ACustomPlayerController::DelegateCameraRollRightEnd);
 	InputComponent->BindAction("Action_Camera_Toggle", IE_Pressed, this, &ACustomPlayerController::DelegateToggleCamera);
+	InputComponent->BindAction("Action_Camera_Collision_Toggle", IE_Pressed, this, &ACustomPlayerController::DelegateToggleCameraCollision);
 	//item actions
 	InputComponent->BindAction("Action_Item_Pickup", IE_Pressed, this, &ACustomPlayerController::DelegateItemPickup);
 	InputComponent->BindAction("Action_Item_Pickup", IE_Released, this, &ACustomPlayerController::DelegateItemRelease);
@@ -184,6 +185,12 @@ void ACustomPlayerController::DelegateCameraRollRightEnd()
 void ACustomPlayerController::DelegateToggleCamera()
 {
 	CameraMovement->ToggleCamera();
+}
+
+void ACustomPlayerController::DelegateToggleCameraCollision()
+{
+	USpringArmComponent* SpringArm = CameraPawn->GetCameraArm();
+	SpringArm->bDoCollisionTest = !SpringArm->bDoCollisionTest;
 }
 
 void ACustomPlayerController::DelegateItemThrowForward(float value)

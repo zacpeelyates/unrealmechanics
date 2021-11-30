@@ -9,9 +9,10 @@ APickupActor::APickupActor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
 	//Set Mesh Component
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
-	MeshComponent->SetupAttachment(RootComponent);
+	RootComponent = MeshComponent;
 	//Set Parameters 
 	PreviewCopy = nullptr;
 	Holder = nullptr;
@@ -84,20 +85,33 @@ void APickupActor::Preview()
 {
 	if (PreviewCopy == nullptr && bCanCopy)
 	{
-		DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		FActorSpawnParameters SpawnParameters;
-		SpawnParameters.Template = this;
-		PreviewCopy = GetWorld()->SpawnActor<APickupActor>(SpawnParameters);
-		AttachToActor(Holder, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-		AddActorLocalOffset(PickupOffset);
+		//ensure copy does not interact with original itll break the space time continum
 		MeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		PreviewCopy->SetThrowVector(ThrowVector);
-		PreviewCopy->Holder = Holder;
-		PreviewCopy->bCanCopy = false;
+		MeshComponent->SetSimulatePhysics(false);
+
+		//create and show preview copy
+		FActorSpawnParameters SpawnParameters;
+
+		//spawn params 
+		SpawnParameters.Template = this;
+		SpawnParameters.Owner = this;
+		SpawnParameters.OverrideParentComponent = nullptr;
+		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		
+
+		//setup & spawn copy
+		const FTransform T = GetTransform();
+		PreviewCopy = (APickupActor*)GetWorld()->SpawnActor(APickupActor::StaticClass(), &T, SpawnParameters);
+		PreviewCopy->bCanCopy = false; //very important or infinite objects spawn and you get a very long error message that mentions fortnite
 		PreviewCopy->bCanPickup = false;
+		PreviewCopy->Holder = Holder;
+		PreviewCopy->AttachToActor(Holder, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		PreviewCopy->SetActorTransform(T);
 		PreviewCopy->MeshComponent->SetMaterial(0, PreviewMaterial);
-		PreviewTimer = BasePreviewTime;
+		PreviewCopy->DefaultCollisionType = DefaultCollisionType;
+		PreviewCopy->SetThrowVector(ThrowVector);
 		PreviewCopy->Throw();
+		PreviewTimer = BasePreviewTime;
 	}
 	else if(PreviewTimer <= 0)
 	{
@@ -109,7 +123,7 @@ void APickupActor::Preview()
 	}
 	else if(PreviewCopy != nullptr)
 	{
-	LineBatchComponent->DrawPoint(PreviewCopy->MeshComponent->GetComponentLocation(),FLinearColor(ColorPoint.X,ColorPoint.Y,ColorPoint.Z),5, 1, PreviewTimer);
+		LineBatchComponent->DrawPoint(PreviewCopy->MeshComponent->GetComponentLocation(),FLinearColor(ColorPoint.X,ColorPoint.Y,ColorPoint.Z),5, 1, PreviewTimer);
 	}
 }
 

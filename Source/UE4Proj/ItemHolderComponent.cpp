@@ -17,14 +17,15 @@ UItemHolderComponent::UItemHolderComponent()
 	ThrowScale = 100.0f;
 	ThrowVector = BaseThrowVector;
 	PrevThrowVector = ThrowVector;
-	MaxThrowVector = FVector(60000.0f, 25000.0f, 30000.0f);
-	MinThrowVector = FVector(0.0f, -MaxThrowVector.Y, 0.0f);
 }
 
 void UItemHolderComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	MaxThrowVector = FVector(BaseThrowVector.X*2, BaseThrowVector.Z*1.50f, BaseThrowVector.Z*2);
+	MinThrowVector = FVector(0.0f, -MaxThrowVector.Y, 0.0f);
 }
+
 
 
 // Called every frame
